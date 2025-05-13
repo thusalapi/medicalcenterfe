@@ -44,10 +44,11 @@ export default function SystemSettingsPage() {
       defaultPrinter: "Office Printer",
       pdfCompression: "medium",
     },
-  });  const [activeTab, setActiveTab] = useState("general");
+  });
+  const [activeTab, setActiveTab] = useState("general");
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<any>({ ...settings.general });
-  
+
   // Update form data when active tab changes
   useEffect(() => {
     setFormData({ ...settings[activeTab as keyof typeof settings] });

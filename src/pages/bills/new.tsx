@@ -66,7 +66,9 @@ const NewBillPage: React.FC = () => {
         if (bill) {
           setBill({
             ...bill,
-            items: bill.items.filter((item) => item.billItemId !== variables.itemId),
+            items: bill.items.filter(
+              (item) => item.billItemId !== variables.itemId
+            ),
           });
         }
       },

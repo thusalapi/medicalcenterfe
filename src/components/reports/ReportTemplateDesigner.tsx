@@ -27,23 +27,28 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
 }) => {
   const [reportName, setReportName] = useState<string>(
     initialTemplate?.reportName || ""
-  );  const [fields, setFields] = useState<ReportField[]>(
+  );
+  const [fields, setFields] = useState<ReportField[]>(
     externalFields || initialTemplate?.reportTemplate?.fields || []
   );
-  
+
   // Update internal fields when external fields change
   useEffect(() => {
     if (externalFields) {
       setFields(externalFields);
     }
   }, [externalFields]);
-  
+
   // Function to update fields and notify parent if onChange is provided
-  const updateFields = useCallback((newFields: ReportField[] | ((prev: ReportField[]) => ReportField[])) => {
-    const updatedFields = typeof newFields === 'function' ? newFields(fields) : newFields;
-    setFields(updatedFields);
-    onChange?.(updatedFields);
-  }, [fields, onChange]);
+  const updateFields = useCallback(
+    (newFields: ReportField[] | ((prev: ReportField[]) => ReportField[])) => {
+      const updatedFields =
+        typeof newFields === "function" ? newFields(fields) : newFields;
+      setFields(updatedFields);
+      onChange?.(updatedFields);
+    },
+    [fields, onChange]
+  );
   const [activeId, setActiveId] = useState<string | null>(null);
   const [paperSize, setPaperSize] = useState<string>(
     initialTemplate?.reportTemplate?.paperSize || "A4"
