@@ -1,18 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export', // Enable static exports
+  // Removed static export to enable API proxy
   images: {
-    unoptimized: true, // Required for static export
+    domains: ['localhost'],
   },
-  trailingSlash: true, // Better for static hosting
   // Enable CSS processing
   webpack: (config) => {
     return config;
   },
-  // Note: Cannot use rewrites with 'output: export'
-  // API proxy is commented out since we're using static export
-  /* 
+  // API proxy to Spring Boot backend
   async rewrites() {
     return [
       {
@@ -21,7 +18,6 @@ const nextConfig = {
       },
     ];
   },
-  */
 };
 
 export default nextConfig;

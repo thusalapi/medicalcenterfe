@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Create an axios instance with common configuration
-const api = axios.create({
+export const api = axios.create({
   baseURL: "/api", // This will be proxied in development and points to the Spring Boot API in production
   headers: {
     "Content-Type": "application/json",
@@ -60,6 +60,12 @@ export const visitAPI = {
   // Get recent visits (for dashboard)
   getRecentVisits: async (limit: number = 5) => {
     const response = await api.get(`/visits/recent?limit=${limit}`);
+    return response.data;
+  },
+
+  // Get visit statistics for analytics dashboard
+  getVisitStats: async () => {
+    const response = await api.get(`/visits/statistics`);
     return response.data;
   },
 
@@ -136,6 +142,12 @@ export const reportAPI = {
     await api.delete(`/reports/${reportId}`);
   },
 
+  // Get report statistics
+  getReportStats: async () => {
+    const response = await api.get(`/reports/statistics`);
+    return response.data;
+  },
+
   // Get reports for patient
   getReportsForPatient: async (patientId: number) => {
     const response = await api.get(`/reports/patient/${patientId}`);
@@ -174,6 +186,12 @@ export const billAPI = {
   // Get bill by visit ID
   getBillByVisitId: async (visitId: number) => {
     const response = await api.get(`/bills/visit/${visitId}`);
+    return response.data;
+  },
+
+  // Get billing statistics
+  getBillingStats: async () => {
+    const response = await api.get(`/bills/statistics`);
     return response.data;
   },
 

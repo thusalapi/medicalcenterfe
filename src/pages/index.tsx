@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useQuery } from "react-query";
-import { visitAPI } from "../utils/api";
+import { visitAPI, reportAPI, billAPI } from "../utils/api";
 import PatientLookup from "../components/patients/PatientLookup";
-import { Patient, Visit } from "../types"; // Assuming these types are defined in src/types/index.ts
+import Dashboard from "../components/dashboard/Dashboard";
+import { Patient, Visit, Report } from "../types";
 
+// Type definitions
 interface SelectedPatient extends Patient {
   // Add any additional properties if selectedPatient has more than Patient
 }
@@ -16,13 +18,36 @@ export default function Home() {
     useState<SelectedPatient | null>(null);
 
   // Fetch recent visits for the dashboard
-  const { data: recentVisits, isLoading } = useQuery<Visit[], Error>( // Added types for useQuery
+  const { data: recentVisits, isLoading } = useQuery<Visit[], Error>(
     "recentVisits",
     () => visitAPI.getRecentVisits(5),
     {
       refetchInterval: 30000, // Refresh every 30 seconds
     }
   );
+
+  // Fetch analytics data
+  const { data: visitStats } = useQuery<{ total: number; today: number }>(
+    "visitStats",
+    () => visitAPI.getVisitStats(),
+    {
+      refetchInterval: 60000, // Refresh every minute
+    }
+  );
+
+  const { data: billStats } = useQuery<{
+    totalRevenue: number;
+    monthlyRevenue: number;
+  }>("billStats", () => billAPI.getBillingStats(), {
+    refetchInterval: 60000, // Refresh every minute
+  });
+
+  const { data: reportStats } = useQuery<{
+    total: number;
+    pendingReports: number;
+  }>("reportStats", () => reportAPI.getReportStats(), {
+    refetchInterval: 60000, // Refresh every minute
+  });
 
   const handlePatientSelect = (patient: SelectedPatient) => {
     // Added type for patient
@@ -44,6 +69,9 @@ export default function Home() {
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-6">Medical Center Dashboard</h1>
+
+      {/* Dashboard Stats */}
+      <Dashboard />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column */}
