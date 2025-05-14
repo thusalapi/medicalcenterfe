@@ -18,12 +18,104 @@ export default function AdminPage() {
           <p className="text-gray-600 mt-2">
             Manage system settings and configurations
           </p>
-        </div>
-
+        </div>{" "}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* System Management Section */}
           <div className="col-span-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {" "}
+              {/* Medicine Inventory */}
+              <div className="bg-white shadow rounded-lg p-6 hover:shadow-md transition duration-200">
+                <div className="flex items-center mb-4">
+                  <div className="p-3 rounded-full bg-green-100 mr-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-8 w-8 text-green-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Medicine Inventory
+                  </h2>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  Manage medicine stock, track inventory, and monitor usage of
+                  pharmaceuticals.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="bg-blue-50 text-blue-700 text-xs font-medium rounded-full px-2 py-1 flex items-center">
+                    <svg
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                    Stock Items
+                  </div>
+                  <div className="bg-yellow-50 text-yellow-700 text-xs font-medium rounded-full px-2 py-1 flex items-center">
+                    <svg
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Expiry Tracking
+                  </div>
+                  <div className="bg-purple-50 text-purple-700 text-xs font-medium rounded-full px-2 py-1 flex items-center">
+                    <svg
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    Reports
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <Link
+                    href="/admin/inventory"
+                    className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                  >
+                    Manage Inventory
+                  </Link>
+                  <Link
+                    href="/admin/inventory/transactions"
+                    className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition ml-2"
+                  >
+                    View Transactions
+                  </Link>
+                </div>
+              </div>
               {/* Report Templates */}
               <div className="bg-white shadow rounded-lg p-6 hover:shadow-md transition duration-200">
                 <div className="flex items-center mb-4">
@@ -60,7 +152,6 @@ export default function AdminPage() {
                   </Link>
                 </div>
               </div>
-
               {/* User Management */}
               <div className="bg-white shadow rounded-lg p-6 hover:shadow-md transition duration-200">
                 <div className="flex items-center mb-4">
@@ -97,7 +188,6 @@ export default function AdminPage() {
                   </Link>
                 </div>
               </div>
-
               {/* Billing Configuration */}
               <div className="bg-white shadow rounded-lg p-6 hover:shadow-md transition duration-200">
                 <div className="flex items-center mb-4">
@@ -134,7 +224,6 @@ export default function AdminPage() {
                   </Link>
                 </div>
               </div>
-
               {/* System Settings */}
               <div className="bg-white shadow rounded-lg p-6 hover:shadow-md transition duration-200">
                 <div className="flex items-center mb-4">

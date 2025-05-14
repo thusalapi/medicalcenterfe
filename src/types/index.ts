@@ -47,6 +47,14 @@ export interface UpdateReportTypeRequest {
   reportTemplate?: any;
 }
 
+// Lab Template import types
+export interface LabTemplateImportResult {
+  createdCount: number;
+  skippedCount: number;
+  created: string[];
+  skipped: string[];
+}
+
 export interface ReportField {
   id: string;
   label: string;
@@ -95,4 +103,64 @@ export interface CreateBillRequest {
 export interface CreateBillItemRequest {
   itemDescription: string;
   amount: number;
+}
+
+// Medicine Inventory types
+export interface Medicine {
+  medicineId: number;
+  name: string;
+  description?: string;
+  category: string;
+  unit: string;
+  unitPrice: number;
+  stockQuantity: number;
+  batchNumber?: string;
+  expiryDate?: string;
+  manufacturer?: string;
+  reorderLevel: number;
+  createdDate: string;
+  lastModifiedDate: string;
+}
+
+export interface CreateMedicineRequest {
+  name: string;
+  description?: string;
+  category: string;
+  unit: string;
+  unitPrice: number;
+  stockQuantity: number;
+  batchNumber?: string;
+  expiryDate?: string;
+  manufacturer?: string;
+  reorderLevel: number;
+}
+
+export interface UpdateMedicineRequest {
+  name?: string;
+  description?: string;
+  category?: string;
+  unit?: string;
+  unitPrice?: number;
+  stockQuantity?: number;
+  batchNumber?: string;
+  expiryDate?: string;
+  manufacturer?: string;
+  reorderLevel?: number;
+}
+
+export interface MedicineCategory {
+  categoryId: number;
+  name: string;
+  description?: string;
+}
+
+export interface InventoryTransaction {
+  transactionId: number;
+  medicineId: number;
+  medicineName: string;
+  transactionType: "PURCHASE" | "SALE" | "ADJUSTMENT" | "RETURN" | "EXPIRED";
+  quantity: number;
+  transactionDate: string;
+  notes?: string;
+  referenceId?: string; // Can be visit ID, invoice number, etc.
 }

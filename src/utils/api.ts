@@ -110,10 +110,24 @@ export const reportTypeAPI = {
     );
     return response.data;
   },
-
   // Delete report type
   deleteReportType: async (reportTypeId: number) => {
     await api.delete(`/report-types/${reportTypeId}`);
+  },
+
+  // Import predefined lab templates
+  importPredefinedLabTemplates: async () => {
+    const response = await api.post("/lab-templates/import-predefined");
+    return response.data;
+  },
+
+  // Create custom lab templates
+  createCustomLabTemplates: async (templateNames: string[]) => {
+    const response = await api.post(
+      "/lab-templates/create-custom",
+      templateNames
+    );
+    return response.data;
   },
 };
 
@@ -217,12 +231,131 @@ export const billAPI = {
     const response = await api.put(`/bills/${billId}/recalculate`);
     return response.data;
   },
-
   // Generate PDF for bill
   generateBillPdf: async (billId: number) => {
     const response = await api.get(`/bills/${billId}/pdf`, {
       responseType: "blob",
     });
+    return response.data;
+  },
+};
+
+// Medicine Inventory API functions
+export const medicineAPI = {
+  // Get all medicines
+  getAllMedicines: async () => {
+    const response = await api.get("/medicines");
+    return response.data;
+  },
+
+  // Get medicine by ID
+  getMedicineById: async (medicineId: number) => {
+    const response = await api.get(`/medicines/${medicineId}`);
+    return response.data;
+  },
+
+  // Create new medicine
+  createMedicine: async (medicineData: any) => {
+    const response = await api.post("/medicines", medicineData);
+    return response.data;
+  },
+
+  // Update medicine
+  updateMedicine: async (medicineId: number, medicineData: any) => {
+    const response = await api.put(`/medicines/${medicineId}`, medicineData);
+    return response.data;
+  },
+
+  // Delete medicine
+  deleteMedicine: async (medicineId: number) => {
+    await api.delete(`/medicines/${medicineId}`);
+  },
+
+  // Search medicines
+  searchMedicines: async (query: string) => {
+    const response = await api.get(
+      `/medicines/search?query=${encodeURIComponent(query)}`
+    );
+    return response.data;
+  },
+
+  // Get low stock medicines
+  getLowStockMedicines: async () => {
+    const response = await api.get("/medicines/low-stock");
+    return response.data;
+  },
+
+  // Get expiring medicines
+  getExpiringMedicines: async (daysThreshold: number = 30) => {
+    const response = await api.get(`/medicines/expiring?days=${daysThreshold}`);
+    return response.data;
+  },
+
+  // Get medicine categories
+  getMedicineCategories: async () => {
+    const response = await api.get("/medicine-categories");
+    return response.data;
+  },
+
+  // Create medicine category
+  createMedicineCategory: async (categoryData: any) => {
+    const response = await api.post("/medicine-categories", categoryData);
+    return response.data;
+  },
+
+  // Record inventory transaction
+  recordInventoryTransaction: async (transactionData: any) => {
+    const response = await api.post("/inventory-transactions", transactionData);
+    return response.data;
+  },
+
+  // Get inventory transactions
+  getInventoryTransactions: async (
+    medicineId?: number,
+    startDate?: string,
+    endDate?: string
+  ) => {
+    let url = "/inventory-transactions";
+    const params = [];
+
+    if (medicineId) params.push(`medicineId=${medicineId}`);
+    if (startDate) params.push(`startDate=${startDate}`);
+    if (endDate) params.push(`endDate=${endDate}`);
+
+    if (params.length > 0) {
+      url += "?" + params.join("&");
+    }
+
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  // Generate inventory report
+  generateInventoryReport: async (
+    startDate?: string,
+    endDate?: string,
+    category?: string
+  ) => {
+    let url = "/inventory-reports";
+    const params = [];
+
+    if (startDate) params.push(`startDate=${startDate}`);
+    if (endDate) params.push(`endDate=${endDate}`);
+    if (category) params.push(`category=${encodeURIComponent(category)}`);
+
+    if (params.length > 0) {
+      url += "?" + params.join("&");
+    }
+
+    const response = await api.get(url, {
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
+  // Get inventory statistics
+  getInventoryStats: async () => {
+    const response = await api.get("/inventory-statistics");
     return response.data;
   },
 };
