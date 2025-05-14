@@ -13,7 +13,7 @@ const MedicineDetailPage: React.FC = () => {
   const { id } = router.query;
   const isNewMedicine = id === "new";
   const queryClient = useQueryClient();
-  
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -26,7 +26,7 @@ const MedicineDetailPage: React.FC = () => {
     manufacturer: "",
     reorderLevel: 5,
   });
-  
+
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -44,7 +44,9 @@ const MedicineDetailPage: React.FC = () => {
         // Format date for the date input
         let formattedData = { ...data };
         if (formattedData.expiryDate) {
-          formattedData.expiryDate = new Date(formattedData.expiryDate).toISOString().split('T')[0];
+          formattedData.expiryDate = new Date(formattedData.expiryDate)
+            .toISOString()
+            .split("T")[0];
         }
         setFormData(formattedData);
       },
@@ -72,7 +74,7 @@ const MedicineDetailPage: React.FC = () => {
       queryClient.invalidateQueries("allMedicines");
       queryClient.invalidateQueries("lowStockMedicines");
       queryClient.invalidateQueries("expiringMedicines");
-      
+
       if (isNewMedicine) {
         setSuccess("Medicine created successfully!");
         // Reset form
@@ -91,9 +93,9 @@ const MedicineDetailPage: React.FC = () => {
       } else {
         setSuccess("Medicine updated successfully!");
       }
-      
+
       setIsSubmitting(false);
-      
+
       // Redirect after a short delay
       setTimeout(() => {
         router.push("/admin/inventory");
@@ -106,11 +108,19 @@ const MedicineDetailPage: React.FC = () => {
   });
 
   // Handle form input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    
+
     // Handle number inputs
-    if (name === "unitPrice" || name === "stockQuantity" || name === "reorderLevel") {
+    if (
+      name === "unitPrice" ||
+      name === "stockQuantity" ||
+      name === "reorderLevel"
+    ) {
       setFormData({
         ...formData,
         [name]: parseFloat(value) || 0,
@@ -128,18 +138,18 @@ const MedicineDetailPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    
+
     // Validate form
     if (!formData.name.trim()) {
       setError("Medicine name is required");
       return;
     }
-    
+
     if (!formData.category) {
       setError("Medicine category is required");
       return;
     }
-    
+
     if (!formData.unit) {
       setError("Unit of measurement is required");
       return;
@@ -153,7 +163,8 @@ const MedicineDetailPage: React.FC = () => {
     <>
       <Head>
         <title>
-          {isNewMedicine ? "Add New Medicine" : "Edit Medicine"} | Medical Center Management System
+          {isNewMedicine ? "Add New Medicine" : "Edit Medicine"} | Medical
+          Center Management System
         </title>
       </Head>
 
@@ -245,13 +256,17 @@ const MedicineDetailPage: React.FC = () => {
               <span className="text-xl">Loading medicine data...</span>
             </div>
           </div>
-        ) : (          <div className="bg-white shadow rounded-lg overflow-hidden">
+        ) : (
+          <div className="bg-white shadow rounded-lg overflow-hidden">
             <form onSubmit={handleSubmit}>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Medicine Name */}
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Medicine Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -267,7 +282,10 @@ const MedicineDetailPage: React.FC = () => {
 
                   {/* Category */}
                   <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="category"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Category <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -294,7 +312,9 @@ const MedicineDetailPage: React.FC = () => {
                           <option value="Topical">Topical</option>
                           <option value="Cardiovascular">Cardiovascular</option>
                           <option value="Respiratory">Respiratory</option>
-                          <option value="Gastrointestinal">Gastrointestinal</option>
+                          <option value="Gastrointestinal">
+                            Gastrointestinal
+                          </option>
                           <option value="Other">Other</option>
                         </>
                       )}
@@ -303,7 +323,10 @@ const MedicineDetailPage: React.FC = () => {
 
                   {/* Unit */}
                   <div>
-                    <label htmlFor="unit" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="unit"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Unit <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -331,7 +354,10 @@ const MedicineDetailPage: React.FC = () => {
 
                   {/* Unit Price */}
                   <div>
-                    <label htmlFor="unitPrice" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="unitPrice"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Unit Price ($) <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -349,7 +375,10 @@ const MedicineDetailPage: React.FC = () => {
 
                   {/* Stock Quantity */}
                   <div>
-                    <label htmlFor="stockQuantity" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="stockQuantity"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Stock Quantity <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -366,7 +395,10 @@ const MedicineDetailPage: React.FC = () => {
 
                   {/* Reorder Level */}
                   <div>
-                    <label htmlFor="reorderLevel" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="reorderLevel"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Reorder Level <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -386,7 +418,10 @@ const MedicineDetailPage: React.FC = () => {
 
                   {/* Manufacturer */}
                   <div>
-                    <label htmlFor="manufacturer" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="manufacturer"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Manufacturer
                     </label>
                     <input
@@ -401,7 +436,10 @@ const MedicineDetailPage: React.FC = () => {
 
                   {/* Batch Number */}
                   <div>
-                    <label htmlFor="batchNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="batchNumber"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Batch Number
                     </label>
                     <input
@@ -416,7 +454,10 @@ const MedicineDetailPage: React.FC = () => {
 
                   {/* Expiry Date */}
                   <div>
-                    <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="expiryDate"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Expiry Date
                     </label>
                     <input
@@ -432,7 +473,10 @@ const MedicineDetailPage: React.FC = () => {
 
                 {/* Description */}
                 <div className="mt-6">
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Description
                   </label>
                   <textarea
@@ -494,29 +538,33 @@ const MedicineDetailPage: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div> )
-          {!isNewMedicine && medicineData && (
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-medium text-gray-800 mb-4">Medicine Information</h3>
-                <MedicineCard 
-                  medicine={medicineData} 
-                  showActions={false}
-                />
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-medium text-gray-800 mb-4">Quick Stock Update</h3>
-                <StockUpdateForm
-                  medicineId={Number(id)}
-                  medicineName={medicineData.name}
-                  currentStock={medicineData.stockQuantity}
-                  unit={medicineData.unit}
-                  onComplete={() => queryClient.invalidateQueries(["medicine", id])}
-                />
-              </div>
+          </div>
+        )}
+        {!isNewMedicine && medicineData && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-medium text-gray-800 mb-4">
+                Medicine Information
+              </h3>
+              <MedicineCard medicine={medicineData} showActions={false} />
             </div>
-          )}
+
+            <div>
+              <h3 className="text-lg font-medium text-gray-800 mb-4">
+                Quick Stock Update
+              </h3>
+              <StockUpdateForm
+                medicineId={Number(id)}
+                medicineName={medicineData.name}
+                currentStock={medicineData.stockQuantity}
+                unit={medicineData.unit}
+                onComplete={() =>
+                  queryClient.invalidateQueries(["medicine", id])
+                }
+              />
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
