@@ -35,8 +35,12 @@ export default function NewReportTemplatePage() {
         queryClient.invalidateQueries("reportTypes");
         router.push("/admin/report-templates");
       },
-      onError: (error) => {
-        setError("Failed to create report template. Please try again.");
+      onError: (error: any) => {
+        console.error("Error details:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          "Failed to create report template. Please try again.";
+        setError(errorMessage);
         setIsSubmitting(false);
       },
     }
@@ -64,9 +68,9 @@ export default function NewReportTemplatePage() {
       orientation: "portrait",
       fields: fields,
     };
-
     createReportType.mutate({
       reportName: reportName.trim(),
+      description: `Template for ${reportName.trim()}`, // Add description
       reportTemplate: reportTemplate,
     });
   };

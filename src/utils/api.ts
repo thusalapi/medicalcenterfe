@@ -3,12 +3,12 @@ import axios from "axios";
 // Determine the base URL for API requests
 const getBaseUrl = () => {
   // If running in the browser, point directly to the backend
-  if (typeof window !== 'undefined') {
-    return 'http://localhost:8080/api';
+  if (typeof window !== "undefined") {
+    return "http://localhost:8080/api"; // Add back the /api prefix
   }
-  
+
   // If running on server during SSR, use the relative path which will be proxied
-  return '/api';
+  return "/api";
 };
 
 // Create an axios instance with common configuration
@@ -19,14 +19,34 @@ export const api = axios.create({
   },
 });
 
+// Add a response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API Error:", error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
+
 // Patient API functions
 export const patientAPI = {
   // Lookup patient by phone number
   lookupByPhone: async (phoneNumber: string) => {
-    const response = await api.get(
-      `/patients/lookup?phoneNumber=${encodeURIComponent(phoneNumber)}`
-    );
-    return response.data;
+    try {
+      console.log(`Looking up patient with phone number: ${phoneNumber}`);
+      const response = await api.get(
+        `/patients/lookup?phoneNumber=${encodeURIComponent(phoneNumber)}`
+      );
+      console.log("Patient lookup response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error looking up patient:", error);
+      if ((error as any).response?.status === 404) {
+        // If patient not found, return null instead of throwing error
+        return null;
+      }
+      throw error;
+    }
   },
 
   // Create new patient
@@ -105,12 +125,19 @@ export const reportTypeAPI = {
   getReportTypeById: async (reportTypeId: number) => {
     const response = await api.get(`/report-types/${reportTypeId}`);
     return response.data;
-  },
-
-  // Create new report type
+  }, // Create new report type
   createReportType: async (reportTypeData: any) => {
-    const response = await api.post("/report-types", reportTypeData);
-    return response.data;
+    console.log(
+      "Sending report type data to API:",
+      JSON.stringify(reportTypeData, null, 2)
+    );
+    try {
+      const response = await api.post("/report-types", reportTypeData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating report type:", error);
+      throw error;
+    }
   },
 
   // Update report type

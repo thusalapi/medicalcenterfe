@@ -39,6 +39,7 @@ export interface ReportType {
 
 export interface CreateReportTypeRequest {
   reportName: string;
+  description?: string;
   reportTemplate: any;
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery } from "react-query";
 import { patientAPI } from "../../utils/api";
@@ -14,12 +14,12 @@ interface FormData {
 
 const PatientLookup: React.FC<PatientLookupProps> = ({ onPatientSelect }) => {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [searchAttempted, setSearchAttempted] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
-
   // Query for patient lookup
   const {
     data: patient,
@@ -28,26 +28,42 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ onPatientSelect }) => {
     refetch,
   } = useQuery(
     ["patientLookup", phoneNumber],
-    () => (phoneNumber ? patientAPI.lookupByPhone(phoneNumber) : null),
+    () => {
+      console.log("Executing patient lookup query for:", phoneNumber);
+      return phoneNumber ? patientAPI.lookupByPhone(phoneNumber) : null;
+    },
     {
-      enabled: false, // Don't run query until search is triggered
+      enabled: !!phoneNumber, // Only run query when phoneNumber exists
       onSuccess: (data) => {
+        console.log("Patient lookup query succeeded:", data);
         if (data) {
           onPatientSelect(data);
         }
       },
+      onError: (err) => {
+        console.error("Patient lookup query failed:", err);
+      },
+      retry: 1, // Retry once if the query fails
     }
   );
 
   const onSubmit = async (data: FormData) => {
+    console.log("Form submitted with phone number:", data.phoneNumber);
     setPhoneNumber(data.phoneNumber);
-    refetch();
+    setSearchAttempted(true);
+    // No need to manually refetch as the query will automatically run when phoneNumber changes
   };
+
+  // Debugging effect
+  useEffect(() => {
+    if (phoneNumber) {
+      console.log("Phone number state updated:", phoneNumber);
+    }
+  }, [phoneNumber]);
 
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6">
       <h2 className="text-xl font-semibold mb-4">Patient Lookup</h2>
-
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-grow">
@@ -86,16 +102,20 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ onPatientSelect }) => {
             </button>
           </div>
         </div>
-      </form>
-
+      </form>{" "}
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-md">
           <p className="text-red-800">
-            Error searching for patient. Please try again.
+            Error searching for patient:{" "}
+            {(error as any)?.message || "Please try again."}
+          </p>
+          <p className="text-xs text-red-600 mt-1">
+            {(error as any)?.response?.status === 404
+              ? "No patient found with this phone number."
+              : (error as any)?.response?.data?.message || ""}
           </p>
         </div>
       )}
-
       {patient && (
         <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
           <div>
@@ -111,13 +131,12 @@ const PatientLookup: React.FC<PatientLookupProps> = ({ onPatientSelect }) => {
             Select
           </button>
         </div>
-      )}
-
-      {phoneNumber && !patient && !isLoading && !error && (
+      )}{" "}
+      {phoneNumber && searchAttempted && !patient && !isLoading && !error && (
         <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md flex justify-between items-center">
           <div>
             <p className="font-medium">
-              No patient found with this phone number.
+              No patient found with phone number: {phoneNumber}
             </p>
           </div>
           <button

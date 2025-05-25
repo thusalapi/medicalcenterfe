@@ -17,11 +17,20 @@ export default function Home() {
   const [selectedPatient, setSelectedPatient] =
     useState<SelectedPatient | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>("");
 
   useEffect(() => {
     setIsMounted(true);
+    console.log("Home page mounted");
   }, []);
-  
+
+  // Log when selected patient changes
+  useEffect(() => {
+    if (selectedPatient) {
+      console.log("Selected patient updated:", selectedPatient);
+    }
+  }, [selectedPatient]);
+
   // Only enable queries after component mounts on the client
   const enabled = isMounted;
 
@@ -60,9 +69,12 @@ export default function Home() {
     refetchInterval: 60000, // Refresh every minute
     enabled,
   });
-
   const handlePatientSelect = (patient: SelectedPatient) => {
     // Added type for patient
+    console.log("Patient selected on home page:", patient);
+    setDebugInfo(
+      `Patient selected: ${patient.name} (ID: ${patient.patientId})`
+    );
     setSelectedPatient(patient);
   };
 
@@ -81,6 +93,13 @@ export default function Home() {
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-6">Medical Center Dashboard</h1>
+
+      {/* Debug Info - Remove in production */}
+      {debugInfo && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 mb-4 rounded">
+          <p className="text-sm font-mono">{debugInfo}</p>
+        </div>
+      )}
 
       {/* Dashboard Stats */}
       <Dashboard />
