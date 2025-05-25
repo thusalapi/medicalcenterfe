@@ -66,6 +66,27 @@ export const patientAPI = {
     const response = await api.get(`/patients/${patientId}`);
     return response.data;
   },
+
+  // Get all patients with optional search
+  getAllPatients: async (
+    searchTerm?: string,
+    page?: number,
+    limit?: number
+  ) => {
+    let url = "/patients";
+    const params = [];
+
+    if (searchTerm) params.push(`search=${encodeURIComponent(searchTerm)}`);
+    if (page) params.push(`page=${page}`);
+    if (limit) params.push(`limit=${limit}`);
+
+    if (params.length > 0) {
+      url += "?" + params.join("&");
+    }
+
+    const response = await api.get(url);
+    return response.data;
+  },
 };
 
 // Visit API functions
@@ -93,10 +114,34 @@ export const visitAPI = {
     const response = await api.get(`/visits/recent?limit=${limit}`);
     return response.data;
   },
-
   // Get visit statistics for analytics dashboard
   getVisitStats: async () => {
     const response = await api.get(`/visits/statistics`);
+    return response.data;
+  },
+
+  // Get all visits with optional search and pagination
+  getAllVisits: async (
+    searchTerm?: string,
+    dateFrom?: string,
+    dateTo?: string,
+    page?: number,
+    limit?: number
+  ) => {
+    let url = "/visits";
+    const params = [];
+
+    if (searchTerm) params.push(`search=${encodeURIComponent(searchTerm)}`);
+    if (dateFrom) params.push(`dateFrom=${dateFrom}`);
+    if (dateTo) params.push(`dateTo=${dateTo}`);
+    if (page) params.push(`page=${page}`);
+    if (limit) params.push(`limit=${limit}`);
+
+    if (params.length > 0) {
+      url += "?" + params.join("&");
+    }
+
+    const response = await api.get(url);
     return response.data;
   },
 
@@ -240,10 +285,36 @@ export const billAPI = {
     const response = await api.get(`/bills/visit/${visitId}`);
     return response.data;
   },
-
   // Get billing statistics
   getBillingStats: async () => {
     const response = await api.get(`/bills/statistics`);
+    return response.data;
+  },
+
+  // Get all bills with optional search and pagination
+  getAllBills: async (
+    searchTerm?: string,
+    dateFrom?: string,
+    dateTo?: string,
+    status?: string,
+    page?: number,
+    limit?: number
+  ) => {
+    let url = "/bills";
+    const params = [];
+
+    if (searchTerm) params.push(`search=${encodeURIComponent(searchTerm)}`);
+    if (dateFrom) params.push(`dateFrom=${dateFrom}`);
+    if (dateTo) params.push(`dateTo=${dateTo}`);
+    if (status) params.push(`status=${encodeURIComponent(status)}`);
+    if (page) params.push(`page=${page}`);
+    if (limit) params.push(`limit=${limit}`);
+
+    if (params.length > 0) {
+      url += "?" + params.join("&");
+    }
+
+    const response = await api.get(url);
     return response.data;
   },
 
