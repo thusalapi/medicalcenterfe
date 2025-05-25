@@ -17,6 +17,7 @@ import {
   FaClock,
   FaExclamationTriangle,
   FaCog,
+  FaUserInjured,
 } from "react-icons/fa";
 
 // Type definitions
