@@ -9,7 +9,7 @@ const nextConfig = {
   webpack: (config) => {
     return config;
   },
-  // API proxy to Spring Boot backend
+  // API proxy to Spring Boot backend - Only used during server-side rendering
   async rewrites() {
     return [
       {

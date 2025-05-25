@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useQuery } from "react-query";
@@ -16,6 +16,14 @@ export default function Home() {
   const router = useRouter();
   const [selectedPatient, setSelectedPatient] =
     useState<SelectedPatient | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
+  // Only enable queries after component mounts on the client
+  const enabled = isMounted;
 
   // Fetch recent visits for the dashboard
   const { data: recentVisits, isLoading } = useQuery<Visit[], Error>(
@@ -23,6 +31,7 @@ export default function Home() {
     () => visitAPI.getRecentVisits(5),
     {
       refetchInterval: 30000, // Refresh every 30 seconds
+      enabled,
     }
   );
 
@@ -32,6 +41,7 @@ export default function Home() {
     () => visitAPI.getVisitStats(),
     {
       refetchInterval: 60000, // Refresh every minute
+      enabled,
     }
   );
 
@@ -40,6 +50,7 @@ export default function Home() {
     monthlyRevenue: number;
   }>("billStats", () => billAPI.getBillingStats(), {
     refetchInterval: 60000, // Refresh every minute
+    enabled,
   });
 
   const { data: reportStats } = useQuery<{
@@ -47,6 +58,7 @@ export default function Home() {
     pendingReports: number;
   }>("reportStats", () => reportAPI.getReportStats(), {
     refetchInterval: 60000, // Refresh every minute
+    enabled,
   });
 
   const handlePatientSelect = (patient: SelectedPatient) => {

@@ -1,8 +1,19 @@
 import axios from "axios";
 
+// Determine the base URL for API requests
+const getBaseUrl = () => {
+  // If running in the browser, point directly to the backend
+  if (typeof window !== 'undefined') {
+    return 'http://localhost:8080/api';
+  }
+  
+  // If running on server during SSR, use the relative path which will be proxied
+  return '/api';
+};
+
 // Create an axios instance with common configuration
 export const api = axios.create({
-  baseURL: "/api", // This will be proxied in development and points to the Spring Boot API in production
+  baseURL: getBaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },

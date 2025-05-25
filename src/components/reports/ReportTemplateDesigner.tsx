@@ -8,9 +8,11 @@ import {
   useSensors,
   DragEndEvent,
   DragStartEvent,
+  useDraggable,
 } from "@dnd-kit/core";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { ReportField, ReportType } from "../../types";
+import ChartField from "./ChartField";
 
 interface ReportTemplateDesignerProps {
   initialTemplate?: ReportType;
@@ -82,7 +84,6 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
 
     updateFields([...fields, newField]);
   };
-
   // Get default label based on field type
   const getDefaultLabelByType = (type: string): string => {
     switch (type) {
@@ -98,6 +99,10 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
         return "Text Area";
       case "heading":
         return "Report Heading";
+      case "pie-chart":
+        return "Pie Chart";
+      case "bar-chart":
+        return "Bar Chart";
       default:
         return "Field";
     }
@@ -234,12 +239,24 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
                 onClick={() => createField("textarea")}
               >
                 Text Area
-              </button>
+              </button>{" "}
               <button
                 className="bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600"
                 onClick={() => createField("heading")}
               >
                 Heading
+              </button>
+              <button
+                className="bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600"
+                onClick={() => createField("pie-chart")}
+              >
+                Pie Chart
+              </button>
+              <button
+                className="bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600"
+                onClick={() => createField("bar-chart")}
+              >
+                Bar Chart
               </button>
             </div>
           </div>
@@ -356,32 +373,13 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
                 transformOrigin: "top left",
               }}
             >
+              {" "}
               {fields.map((field) => (
-                <div
+                <DraggableField
                   key={field.id}
-                  id={field.id}
-                  className={`absolute cursor-grab border border-dashed ${
-                    activeId === field.id
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-300"
-                  } p-2 rounded`}
-                  style={{
-                    left: field.x,
-                    top: field.y,
-                    fontWeight: field.bold ? "bold" : "normal",
-                    fontSize: `${field.fontSize}px`,
-                  }}
-                >
-                  {field.showLabel && (
-                    <span className="text-gray-500">{field.label}: </span>
-                  )}
-                  {field.type === "text" && "[Text Input]"}
-                  {field.type === "number" && "[Number Input]"}
-                  {field.type === "date" && "[Date Input]"}
-                  {field.type === "checkbox" && "[Checkbox]"}
-                  {field.type === "textarea" && "[Text Area]"}
-                  {field.type === "heading" && field.label}
-                </div>
+                  field={field}
+                  isActive={activeId === field.id}
+                />
               ))}
             </div>
           </DndContext>
@@ -396,6 +394,57 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
           Save Template
         </button>
       </div>
+    </div>
+  );
+};
+
+// Draggable Field Component
+interface DraggableFieldProps {
+  field: ReportField;
+  isActive: boolean;
+}
+
+const DraggableField: React.FC<DraggableFieldProps> = ({ field, isActive }) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: field.id,
+  });
+
+  const style: React.CSSProperties = {
+    position: "absolute",
+    left: field.x,
+    top: field.y,
+    fontWeight: field.bold ? "bold" : "normal",
+    fontSize: `${field.fontSize}px`,
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`absolute cursor-grab border border-dashed ${
+        isActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
+      } p-2 rounded`}
+      {...listeners}
+      {...attributes}
+    >
+      {field.showLabel && (
+        <span className="text-gray-500">{field.label}: </span>
+      )}
+      {field.type === "text" && "[Text Input]"}
+      {field.type === "number" && "[Number Input]"}{" "}
+      {field.type === "date" && "[Date Input]"}
+      {field.type === "checkbox" && "[Checkbox]"}
+      {field.type === "textarea" && "[Text Area]"}
+      {field.type === "heading" && field.label}
+      {field.type === "pie-chart" && (
+        <ChartField type="pie" width={250} height={180} />
+      )}
+      {field.type === "bar-chart" && (
+        <ChartField type="bar" width={250} height={180} />
+      )}
     </div>
   );
 };

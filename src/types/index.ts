@@ -58,12 +58,13 @@ export interface LabTemplateImportResult {
 export interface ReportField {
   id: string;
   label: string;
-  type: string;
+  type: string; // text, number, date, checkbox, textarea, heading, pie-chart, bar-chart
   x?: number;
   y?: number;
   fontSize?: number;
   bold?: boolean;
   showLabel?: boolean;
+  chartData?: any; // For chart-type fields
 }
 
 export interface Report {
