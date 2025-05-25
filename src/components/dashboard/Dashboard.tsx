@@ -9,6 +9,8 @@ import {
   FaMoneyBillWave,
   FaFileAlt,
   FaCalendarCheck,
+  FaHeartbeat,
+  FaChartLine,
 } from "react-icons/fa";
 
 const Dashboard: React.FC = () => {
@@ -40,42 +42,55 @@ const Dashboard: React.FC = () => {
     }).format(value);
   };
 
+  // Mock trend data - in real app, this would come from API
+  const getTrendData = (current: number | undefined, previous: number) => {
+    if (!current) return { value: 0, isPositive: true };
+    const change = ((current - previous) / previous) * 100;
+    return {
+      value: Math.round(Math.abs(change)),
+      isPositive: change >= 0,
+    };
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {/* Total Visits */}
       <StatCard
         title="Total Visits"
         value={visitsLoading ? "..." : visitStats?.total || 0}
-        description="All patient visits"
-        icon={<FaUserInjured className="text-white text-lg" />}
-        colorClass="bg-blue-500"
+        description="All patient visits recorded"
+        icon={<FaUserInjured />}
+        colorClass="bg-gradient-to-br from-medical-primary to-medical-primary-dark"
+        trend={getTrendData(visitStats?.total, 120)}
       />
-
       {/* Today's Visits */}
       <StatCard
         title="Today's Visits"
         value={visitsLoading ? "..." : visitStats?.today || 0}
-        description="New patients today"
-        icon={<FaCalendarCheck className="text-white text-lg" />}
-        colorClass="bg-green-500"
+        description="Visits scheduled for today"
+        icon={<FaCalendarCheck />}
+        colorClass="bg-gradient-to-br from-medical-secondary to-medical-secondary-dark"
+        trend={getTrendData(visitStats?.today, 8)}
       />
-
-      {/* Revenue */}
+      {/* Monthly Revenue */}
       <StatCard
-        title="Total Revenue"
-        value={billsLoading ? "..." : formatCurrency(billStats?.totalRevenue)}
-        description="Overall earnings"
-        icon={<FaMoneyBillWave className="text-white text-lg" />}
-        colorClass="bg-yellow-500"
-      />
-
-      {/* Reports */}
+        title="Monthly Revenue"
+        value={
+          billsLoading ? "..." : formatCurrency(billStats?.monthlyRevenue || 0)
+        }
+        description="Revenue generated this month"
+        icon={<FaMoneyBillWave />}
+        colorClass="bg-gradient-to-br from-medical-warning to-yellow-600"
+        trend={getTrendData(billStats?.monthlyRevenue, 15000)}
+      />{" "}
+      {/* Pending Reports */}
       <StatCard
-        title="Total Reports"
-        value={reportsLoading ? "..." : reportStats?.total || 0}
-        description={`${reportStats?.pendingReports || 0} pending reports`}
-        icon={<FaFileAlt className="text-white text-lg" />}
-        colorClass="bg-purple-500"
+        title="Pending Reports"
+        value={reportsLoading ? "..." : reportStats?.pendingReports || 0}
+        description="Reports awaiting review"
+        icon={<FaFileAlt />}
+        colorClass="bg-gradient-to-br from-medical-accent to-red-600"
+        trend={getTrendData(reportStats?.pendingReports, 12)}
       />
     </div>
   );
