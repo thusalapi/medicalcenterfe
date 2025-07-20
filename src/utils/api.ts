@@ -501,11 +501,18 @@ export const reportTemplateAPI = {
       "Sending template data to API:",
       JSON.stringify(templateData, null, 2)
     );
+
     try {
       const response = await api.post("/report-templates", templateData);
+      console.log("Template created successfully:", response.data);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating template:", error);
+      if (error.response) {
+        console.error("Response status:", error.response.status);
+        console.error("Response data:", error.response.data);
+        console.error("Response headers:", error.response.headers);
+      }
       throw error;
     }
   },

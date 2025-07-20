@@ -15,6 +15,7 @@ import {
   FaUsers,
   FaHospital,
   FaClipboardList,
+  FaDatabase,
 } from "react-icons/fa";
 
 export default function TemplateDesignerPage() {
@@ -202,38 +203,49 @@ export default function TemplateDesignerPage() {
         </div>
 
         {/* Medical Center Guidance Banner */}
-        <div className="bg-blue-50 border-b border-blue-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-start space-x-3">
-              <FaHospital className="text-blue-600 mt-1 flex-shrink-0" />
-              <div>
-                <h3 className="text-sm font-semibold text-blue-900 mb-1">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0">
+                <FaHospital className="text-blue-600 text-2xl mt-1" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-blue-900 mb-2">
                   Medical Report Template Designer
                 </h3>
-                <p className="text-sm text-blue-700 mb-2">
+                <p className="text-sm text-blue-700 mb-3 leading-relaxed">
                   Create professional medical report templates for your
                   healthcare facility. Design layouts for lab results, patient
-                  reports, medical certificates, and more.
+                  reports, medical certificates, discharge summaries, and more.
+                  Use drag-and-drop to build templates that automatically
+                  populate with patient data.
                 </p>
-                <div className="flex flex-wrap gap-4 text-xs text-blue-600">
+                <div className="flex flex-wrap gap-6 text-xs text-blue-600">
                   <div className="flex items-center">
-                    <FaLayerGroup className="mr-1" />
-                    <span>Drag & Drop Elements</span>
+                    <FaLayerGroup className="mr-2" />
+                    <span>Drag & Drop Interface</span>
                   </div>
                   <div className="flex items-center">
-                    <FaUsers className="mr-1" />
+                    <FaUsers className="mr-2" />
                     <span>Patient Data Integration</span>
                   </div>
                   <div className="flex items-center">
-                    <FaClipboardList className="mr-1" />
+                    <FaClipboardList className="mr-2" />
                     <span>Medical Categories</span>
                   </div>
                   <div className="flex items-center">
-                    <FaFileAlt className="mr-1" />
-                    <span>Professional Layout</span>
+                    <FaFileAlt className="mr-2" />
+                    <span>Professional Layouts</span>
                   </div>
                 </div>
               </div>
+              {templateId && (
+                <div className="flex-shrink-0 bg-white px-3 py-2 rounded-md border border-blue-200">
+                  <span className="text-xs font-medium text-blue-700">
+                    Editing Mode
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -246,35 +258,85 @@ export default function TemplateDesignerPage() {
         />
 
         {/* Medical Center Instructions Footer */}
-        <div className="bg-white border-t border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center md:text-left">
-                <h4 className="font-semibold text-gray-900 mb-2">
+        <div className="bg-white border-t border-gray-200 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-center mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Template Design Guide
+              </h3>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Follow these best practices to create professional medical
+                report templates that integrate seamlessly with your healthcare
+                system.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <FaFileAlt className="text-blue-600 text-xl" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-3">
                   📋 Static Elements
                 </h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 leading-relaxed">
                   Add permanent content like clinic headers, instructions, and
-                  labels that appear on every report.
+                  labels that appear on every report. Perfect for branding,
+                  disclaimers, and consistent formatting.
                 </p>
               </div>
-              <div className="text-center md:text-left">
-                <h4 className="font-semibold text-gray-900 mb-2">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <FaDatabase className="text-green-600 text-xl" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-3">
                   🔄 Dynamic Fields
                 </h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 leading-relaxed">
                   Insert patient data fields that automatically populate with
-                  information from your medical records.
+                  information from your medical records. Essential for
+                  personalized reports and data accuracy.
                 </p>
               </div>
-              <div className="text-center md:text-left">
-                <h4 className="font-semibold text-gray-900 mb-2">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <FaHospital className="text-purple-600 text-xl" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-3">
                   ⚕️ Medical Integration
                 </h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 leading-relaxed">
                   Connect fields to patient records, visit data, lab results,
-                  and other medical information systems.
+                  and other medical information systems for complete automation
+                  and compliance.
                 </p>
+              </div>
+            </div>
+            <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg
+                    className="h-5 w-5 text-yellow-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h4 className="text-sm font-medium text-yellow-800">
+                    Important: Data Mapping Required
+                  </h4>
+                  <p className="mt-1 text-sm text-yellow-700">
+                    All dynamic fields must have data mapping configured before
+                    saving. This ensures proper integration with your medical
+                    center's patient management system and maintains data
+                    accuracy in generated reports.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

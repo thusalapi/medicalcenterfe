@@ -83,7 +83,7 @@ export default function ViewTemplatesPage() {
   const handleDuplicateTemplate = (template: ReportTemplate) => {
     // Navigate to create new template with pre-filled data
     router.push({
-      pathname: "/admin/report-templates/new",
+      pathname: "/admin/report-templates/designer",
       query: { duplicate: template.templateId },
     });
   };
@@ -153,7 +153,7 @@ export default function ViewTemplatesPage() {
             </p>
           </div>
           <Link
-            href="/admin/report-templates/new"
+            href="/admin/report-templates/designer"
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             <FaPlus className="mr-2" />
@@ -232,7 +232,7 @@ export default function ViewTemplatesPage() {
                 : "You haven't created any report templates yet."}
             </p>
             <Link
-              href="/admin/report-templates/new"
+              href="/admin/report-templates/designer"
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               <FaPlus className="mr-2" />
@@ -306,7 +306,7 @@ export default function ViewTemplatesPage() {
 
                       {/* Edit */}
                       <Link
-                        href={`/admin/report-templates/edit/${template.templateId}`}
+                        href={`/admin/report-templates/designer?templateId=${template.templateId}`}
                         className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
                         title="Edit Template"
                       >
@@ -385,7 +385,7 @@ export default function ViewTemplatesPage() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link
-              href="/admin/report-templates/new"
+              href="/admin/report-templates/designer"
               className="flex items-center p-3 bg-white rounded-md border border-blue-200 hover:border-blue-300 transition-colors"
             >
               <FaPlus className="text-blue-600 mr-3" />

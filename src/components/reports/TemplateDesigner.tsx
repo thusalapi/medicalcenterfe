@@ -71,6 +71,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     message: string;
     type: "info" | "success" | "warning" | "error";
   } | null>(null);
+  const [showTemplateOptions, setShowTemplateOptions] = useState(false);
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -116,8 +117,8 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
       // Load existing template data
       loadTemplate(templateId);
     } else {
-      // Initialize with default content
-      initializeDefaultTemplate();
+      // Show template options for new templates
+      setShowTemplateOptions(true);
     }
   }, [templateId]);
 
@@ -163,6 +164,28 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     };
 
     setStaticElements([defaultTitle, defaultHeader]);
+    setShowTemplateOptions(false);
+  };
+
+  const initializeBlankTemplate = () => {
+    setStaticElements([]);
+    setDynamicFields([]);
+    setSelectedElement(null);
+    setShowTemplateOptions(false);
+    showNotificationMessage(
+      "Blank template created. Start by adding static text or dynamic fields!",
+      "info"
+    );
+  };
+
+  const resetTemplate = () => {
+    setStaticElements([]);
+    setDynamicFields([]);
+    setSelectedElement(null);
+    setTemplateName("");
+    setDescription("");
+    setCategory("BLOOD_TEST");
+    setShowTemplateOptions(true);
   };
 
   // Show notification helper
@@ -334,13 +357,21 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
       description,
       category,
       staticContent: {
-        content: generateStaticContent(),
+        content: generateFullHtmlContent(), // Use full HTML for backend storage and PDF generation
         elements: staticElements,
       },
       dynamicFields: {
         fields: dynamicFields.map((field) => ({
-          ...field,
-          dataMapping: field.dataMapping, // Ensure data mapping is included
+          fieldName: field.fieldName,
+          fieldType: field.fieldType,
+          label: field.label,
+          placeholder: field.placeholder,
+          required: field.required,
+          options: field.options,
+          position: field.position,
+          size: field.size,
+          dataMapping: field.dataMapping,
+          isDynamic: field.isDynamic,
         })),
         mappings: dynamicFields.reduce((acc, field) => {
           if (field.dataMapping) {
@@ -360,18 +391,112 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   };
 
   const generateStaticContent = () => {
-    // Convert static elements and dynamic field placeholders to HTML/text
-    let content = "";
+    // Convert static elements and dynamic field placeholders to properly formatted HTML
+    const bodyParts: string[] = [];
 
+    // Create a container div for the template content
+    bodyParts.push(
+      `<div class="template-container" style="position: relative; width: 800px; height: 600px; font-family: Arial, sans-serif;">`
+    );
+
+    // Add static elements with proper HTML structure
     staticElements.forEach((element) => {
-      content += `<div style="position: absolute; left: ${element.position.x}px; top: ${element.position.y}px; width: ${element.size.width}px; font-size: ${element.style.fontSize}px; font-weight: ${element.style.fontWeight}; text-align: ${element.style.textAlign}; color: ${element.style.color};">${element.content}</div>\n`;
+      const styles = [
+        `position: absolute`,
+        `left: ${element.position.x}px`,
+        `top: ${element.position.y}px`,
+        `width: ${element.size.width}px`,
+        `height: ${element.size.height}px`,
+        `font-size: ${element.style.fontSize}px`,
+        `font-weight: ${element.style.fontWeight}`,
+        `text-align: ${element.style.textAlign}`,
+        `color: ${element.style.color}`,
+        `overflow: hidden`,
+        `word-wrap: break-word`,
+      ].join("; ");
+
+      // Escape HTML content to prevent injection
+      const escapedContent = element.content
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;");
+
+      bodyParts.push(`<div style="${styles}">${escapedContent}</div>`);
     });
 
+    // Add dynamic field placeholders with proper HTML structure
     dynamicFields.forEach((field) => {
-      content += `<div style="position: absolute; left: ${field.position.x}px; top: ${field.position.y}px; width: ${field.size.width}px;">{{${field.fieldName}}}</div>\n`;
+      const styles = [
+        `position: absolute`,
+        `left: ${field.position.x}px`,
+        `top: ${field.position.y}px`,
+        `width: ${field.size.width}px`,
+        `height: ${field.size.height}px`,
+        `padding: 4px`,
+        `overflow: hidden`,
+        `word-wrap: break-word`,
+        `font-family: Arial, sans-serif`,
+        `font-size: 14px`,
+      ].join("; ");
+
+      bodyParts.push(`<div style="${styles}">{{${field.fieldName}}}</div>`);
     });
+
+    // Close container
+    bodyParts.push(`</div>`);
+
+    const content = bodyParts.join("\n");
+
+    // Return basic content if no elements exist
+    if (staticElements.length === 0 && dynamicFields.length === 0) {
+      return `<div class="template-container" style="position: relative; width: 800px; height: 600px; border: 1px solid #ddd; font-family: Arial, sans-serif;">
+<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666;">Template Content</div>
+</div>`;
+    }
 
     return content;
+  };
+
+  // Generate full HTML document for backend storage/PDF generation
+  const generateFullHtmlContent = () => {
+    const bodyContent = generateStaticContent();
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${templateName || "Medical Report"}</title>
+<style>
+body { 
+  font-family: Arial, sans-serif; 
+  margin: 0; 
+  padding: 20px; 
+  line-height: 1.4;
+}
+.template-container { 
+  position: relative; 
+  width: 800px; 
+  height: auto;
+  min-height: 600px;
+  margin: 0 auto;
+}
+@page {
+  size: A4;
+  margin: 2cm;
+}
+@media print {
+  body { margin: 0; padding: 10px; }
+  .template-container { width: 100%; max-width: 100%; }
+}
+</style>
+</head>
+<body>
+${bodyContent}
+</body>
+</html>`;
   };
 
   const handlePreview = () => {
@@ -392,7 +517,79 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   };
 
   return (
-    <div className="template-designer h-screen flex">
+    <>
+      {/* Template Options Modal */}
+      {showTemplateOptions && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                Choose Template Type
+              </h2>
+              <p className="text-gray-600 mb-6">
+                How would you like to start your template?
+              </p>
+
+              <div className="space-y-4">
+                {/* Default Template Option */}
+                <div
+                  onClick={initializeDefaultTemplate}
+                  className="p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all"
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FaFileAlt className="text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-800 mb-1">
+                        Default Template
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Start with pre-configured title and header elements
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Includes: "Medical Report Template" title and "Patient Information" header
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Blank Template Option */}
+                <div
+                  onClick={initializeBlankTemplate}
+                  className="p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all"
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FaPlus className="text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-800 mb-1">
+                        Blank Template
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Start with an empty canvas and build from scratch
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Complete freedom to design your template layout
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 text-center">
+                <p className="text-xs text-gray-500">
+                  You can always add, remove, or modify elements later
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Template Designer */}
+      <div className="template-designer h-screen flex">
       {/* Left Sidebar - Tools */}
       <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
         <div className="p-4 border-b border-gray-200">
@@ -528,6 +725,24 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
 
         {/* Actions */}
         <div className="p-4 border-t border-gray-200 space-y-2">
+          <div className="flex space-x-2 mb-2">
+            <button
+              onClick={resetTemplate}
+              className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm"
+              title="Reset and choose template type"
+            >
+              <FaPlus className="mr-1" />
+              Reset
+            </button>
+            <button
+              onClick={initializeBlankTemplate}
+              className="flex-1 flex items-center justify-center px-3 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 text-sm"
+              title="Clear all content"
+            >
+              Clear All
+            </button>
+          </div>
+          
           <button
             onClick={handleSave}
             className="w-full flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
@@ -989,6 +1204,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
         </div>
       )}
     </div>
+    </>
   );
 };
 
