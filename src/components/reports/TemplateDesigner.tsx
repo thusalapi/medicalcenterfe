@@ -72,6 +72,11 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     type: "info" | "success" | "warning" | "error";
   } | null>(null);
   const [showTemplateOptions, setShowTemplateOptions] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeElement, setResizeElement] = useState<string | null>(null);
+  const [resizeDirection, setResizeDirection] = useState<'width' | 'height' | 'both' | null>(null);
+  const [pageOrientation, setPageOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [pageSize, setPageSize] = useState<'A4' | 'A3' | 'Letter' | 'Legal'>('A4');
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -112,6 +117,23 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     "GENERAL_REPORT",
   ];
 
+  // Page size configurations
+  const pageSizes = {
+    A4: { width: 794, height: 1123, label: 'A4 (210 × 297 mm)' },
+    A3: { width: 1123, height: 1587, label: 'A3 (297 × 420 mm)' },
+    Letter: { width: 816, height: 1056, label: 'Letter (8.5 × 11 in)' },
+    Legal: { width: 816, height: 1344, label: 'Legal (8.5 × 14 in)' }
+  };
+
+  // Get current canvas dimensions based on page size and orientation
+  const getCanvasDimensions = () => {
+    const size = pageSizes[pageSize];
+    if (pageOrientation === 'landscape') {
+      return { width: size.height, height: size.width };
+    }
+    return { width: size.width, height: size.height };
+  };
+
   useEffect(() => {
     if (templateId) {
       // Load existing template data
@@ -133,11 +155,13 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   };
 
   const initializeDefaultTemplate = () => {
+    const canvasDims = getCanvasDimensions();
+    
     const defaultTitle: StaticElement = {
       id: "title-1",
       type: "text",
       content: "Medical Report Template",
-      position: { x: 100, y: 50 },
+      position: { x: canvasDims.width / 2 - 200, y: 50 },
       size: { width: 400, height: 40 },
       style: {
         fontSize: 24,
@@ -185,6 +209,8 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     setTemplateName("");
     setDescription("");
     setCategory("BLOOD_TEST");
+    setPageSize("A4");
+    setPageOrientation("portrait");
     setShowTemplateOptions(true);
   };
 
@@ -292,32 +318,82 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     setSelectedElement(elementId);
   };
 
-  const handleCanvasMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !draggedElementId || !canvasRef.current) return;
-
+  // Handle resize start
+  const handleResizeStart = (e: React.MouseEvent, elementId: string, direction: 'width' | 'height' | 'both') => {
     e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    setResizeElement(elementId);
+    setResizeDirection(direction);
+    setSelectedElement(elementId);
+  };
+
+  const handleCanvasMouseMove = (e: React.MouseEvent) => {
+    if (!canvasRef.current) return;
+
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Update position for static elements
-    const staticElement = staticElements.find(
-      (el) => el.id === draggedElementId
-    );
-    if (staticElement) {
-      updateStaticElement(draggedElementId, {
-        position: { x: Math.max(0, x - 50), y: Math.max(0, y - 15) },
-      });
+    // Handle dragging
+    if (isDragging && draggedElementId) {
+      e.preventDefault();
+      
+      // Update position for static elements
+      const staticElement = staticElements.find(
+        (el) => el.id === draggedElementId
+      );
+      if (staticElement) {
+        updateStaticElement(draggedElementId, {
+          position: { x: Math.max(0, x - 50), y: Math.max(0, y - 15) },
+        });
+      }
+
+      // Update position for dynamic fields
+      const dynamicField = dynamicFields.find(
+        (field) => field.id === draggedElementId
+      );
+      if (dynamicField) {
+        updateDynamicField(draggedElementId, {
+          position: { x: Math.max(0, x - 50), y: Math.max(0, y - 15) },
+        });
+      }
     }
 
-    // Update position for dynamic fields
-    const dynamicField = dynamicFields.find(
-      (field) => field.id === draggedElementId
-    );
-    if (dynamicField) {
-      updateDynamicField(draggedElementId, {
-        position: { x: Math.max(0, x - 50), y: Math.max(0, y - 15) },
-      });
+    // Handle resizing
+    if (isResizing && resizeElement && resizeDirection) {
+      e.preventDefault();
+      
+      const staticElement = staticElements.find(el => el.id === resizeElement);
+      const dynamicField = dynamicFields.find(field => field.id === resizeElement);
+      
+      if (staticElement) {
+        const currentPos = staticElement.position;
+        let newSize = { ...staticElement.size };
+        
+        if (resizeDirection === 'width' || resizeDirection === 'both') {
+          newSize.width = Math.max(50, x - currentPos.x);
+        }
+        if (resizeDirection === 'height' || resizeDirection === 'both') {
+          newSize.height = Math.max(20, y - currentPos.y);
+        }
+        
+        updateStaticElement(resizeElement, { size: newSize });
+      }
+      
+      if (dynamicField) {
+        const currentPos = dynamicField.position;
+        let newSize = { ...dynamicField.size };
+        
+        if (resizeDirection === 'width' || resizeDirection === 'both') {
+          newSize.width = Math.max(50, x - currentPos.x);
+        }
+        if (resizeDirection === 'height' || resizeDirection === 'both') {
+          newSize.height = Math.max(20, y - currentPos.y);
+        }
+        
+        updateDynamicField(resizeElement, { size: newSize });
+      }
     }
   };
 
@@ -325,6 +401,9 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     e.preventDefault();
     setIsDragging(false);
     setDraggedElementId(null);
+    setIsResizing(false);
+    setResizeElement(null);
+    setResizeDirection(null);
   };
 
   const handleSave = () => {
@@ -356,6 +435,8 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
       templateName,
       description,
       category,
+      pageSize,
+      pageOrientation,
       staticContent: {
         content: generateFullHtmlContent(), // Use full HTML for backend storage and PDF generation
         elements: staticElements,
@@ -381,7 +462,9 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
         }, {} as Record<string, string>),
       },
       layoutConfig: {
-        canvasSize: { width: 800, height: 600 },
+        canvasSize: getCanvasDimensions(),
+        pageSize,
+        pageOrientation,
         elements: [...staticElements, ...dynamicFields],
       },
     };
@@ -391,12 +474,14 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   };
 
   const generateStaticContent = () => {
+    const canvasDims = getCanvasDimensions();
+    
     // Convert static elements and dynamic field placeholders to properly formatted HTML
     const bodyParts: string[] = [];
 
     // Create a container div for the template content
     bodyParts.push(
-      `<div class="template-container" style="position: relative; width: 800px; height: 600px; font-family: Arial, sans-serif;">`
+      `<div class="template-container" style="position: relative; width: ${canvasDims.width}px; height: ${canvasDims.height}px; font-family: Arial, sans-serif;">`
     );
 
     // Add static elements with proper HTML structure
@@ -451,7 +536,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
 
     // Return basic content if no elements exist
     if (staticElements.length === 0 && dynamicFields.length === 0) {
-      return `<div class="template-container" style="position: relative; width: 800px; height: 600px; border: 1px solid #ddd; font-family: Arial, sans-serif;">
+      return `<div class="template-container" style="position: relative; width: ${canvasDims.width}px; height: ${canvasDims.height}px; border: 1px solid #ddd; font-family: Arial, sans-serif;">
 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666;">Template Content</div>
 </div>`;
     }
@@ -462,6 +547,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   // Generate full HTML document for backend storage/PDF generation
   const generateFullHtmlContent = () => {
     const bodyContent = generateStaticContent();
+    const canvasDims = getCanvasDimensions();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -478,13 +564,13 @@ body {
 }
 .template-container { 
   position: relative; 
-  width: 800px; 
+  width: ${canvasDims.width}px; 
   height: auto;
-  min-height: 600px;
+  min-height: ${canvasDims.height}px;
   margin: 0 auto;
 }
 @page {
-  size: A4;
+  size: ${pageSize} ${pageOrientation};
   margin: 2cm;
 }
 @media print {
@@ -504,6 +590,8 @@ ${bodyContent}
       templateName,
       description,
       category,
+      pageSize,
+      pageOrientation,
       staticContent: {
         content: generateStaticContent(),
         elements: staticElements,
@@ -643,6 +731,56 @@ ${bodyContent}
                 rows={2}
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Page Size
+              </label>
+              <select
+                value={pageSize}
+                onChange={(e) => setPageSize(e.target.value as any)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {Object.entries(pageSizes).map(([key, config]) => (
+                  <option key={key} value={key}>
+                    {config.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Page Orientation
+              </label>
+              <div className="flex space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setPageOrientation('portrait')}
+                  className={`flex-1 px-3 py-2 text-sm rounded-md border ${
+                    pageOrientation === 'portrait'
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  📄 Portrait
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPageOrientation('landscape')}
+                  className={`flex-1 px-3 py-2 text-sm rounded-md border ${
+                    pageOrientation === 'landscape'
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  📃 Landscape
+                </button>
+              </div>
+              <div className="mt-1 text-xs text-gray-500">
+                Current: {getCanvasDimensions().width} × {getCanvasDimensions().height} px
+              </div>
+            </div>
           </div>
         </div>
 
@@ -720,6 +858,13 @@ ${bodyContent}
                 All dynamic fields need data mapping before saving.
               </p>
             </div>
+
+            <div className="bg-purple-50 p-2 rounded border border-purple-200">
+              <strong className="text-purple-800">📏 Page Layout:</strong>
+              <p className="mt-1">
+                Choose page size and orientation to match your report needs. Canvas adjusts automatically.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -768,11 +913,31 @@ ${bodyContent}
           </h1>
         </div>
 
-        <div className="flex-1 p-4 bg-gray-100">
+        <div className="flex-1 p-6 bg-gray-100 overflow-auto">
+          {/* Page Information Bar */}
+          <div className="mb-4 flex justify-center">
+            <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center space-x-4 text-sm text-gray-600">
+              <div className="flex items-center space-x-1">
+                <span className="font-medium">Page:</span>
+                <span>{pageSizes[pageSize].label}</span>
+              </div>
+              <div className="w-px h-4 bg-gray-300"></div>
+              <div className="flex items-center space-x-1">
+                <span className="font-medium">Orientation:</span>
+                <span className="capitalize">{pageOrientation}</span>
+              </div>
+              <div className="w-px h-4 bg-gray-300"></div>
+              <div className="flex items-center space-x-1">
+                <span className="font-medium">Canvas:</span>
+                <span>{getCanvasDimensions().width} × {getCanvasDimensions().height} px</span>
+              </div>
+            </div>
+          </div>
+
           {/* Notification */}
           {showNotification && (
             <div
-              className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
+              className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-sm ${
                 showNotification.type === "success"
                   ? "bg-green-100 text-green-800 border border-green-200"
                   : showNotification.type === "warning"
@@ -786,24 +951,32 @@ ${bodyContent}
             </div>
           )}
 
-          <div
-            ref={canvasRef}
-            className="relative bg-white border border-gray-300 mx-auto"
-            style={{ width: "800px", height: "600px", minHeight: "600px" }}
-            onDrop={handleCanvasDrop}
-            onDragOver={(e) => e.preventDefault()}
-            onMouseMove={handleCanvasMouseMove}
-            onMouseUp={handleCanvasMouseUp}
-          >
+          <div className="flex justify-center">
+            <div
+              ref={canvasRef}
+              className="relative bg-white border-2 border-gray-300 shadow-lg rounded-lg overflow-hidden"
+              style={{ 
+                width: `${getCanvasDimensions().width}px`, 
+                height: `${getCanvasDimensions().height}px`, 
+                minHeight: `${getCanvasDimensions().height}px`,
+                maxWidth: '90vw',
+                transform: getCanvasDimensions().width > 1000 ? 'scale(0.8)' : 'scale(1)',
+                transformOrigin: 'top center'
+              }}
+              onDrop={handleCanvasDrop}
+              onDragOver={(e) => e.preventDefault()}
+              onMouseMove={handleCanvasMouseMove}
+              onMouseUp={handleCanvasMouseUp}
+            >
             {/* Static Elements */}
             {staticElements.map((element) => (
               <div
                 key={element.id}
-                className={`absolute cursor-move border-2 transition-all ${
+                className={`absolute select-none border-2 transition-all ${
                   selectedElement === element.id
-                    ? "border-blue-500 shadow-lg"
-                    : "border-transparent"
-                } hover:border-blue-300 hover:shadow-md`}
+                    ? "border-blue-500 shadow-lg z-10"
+                    : "border-transparent hover:border-blue-300"
+                } hover:shadow-md`}
                 style={{
                   left: element.position.x,
                   top: element.position.y,
@@ -813,11 +986,20 @@ ${bodyContent}
                   fontWeight: element.style.fontWeight,
                   textAlign: element.style.textAlign,
                   color: element.style.color,
-                  padding: "4px",
                   backgroundColor:
                     selectedElement === element.id
                       ? "rgba(59, 130, 246, 0.1)"
                       : "transparent",
+                  cursor: isDragging && draggedElementId === element.id ? 'grabbing' : 'grab',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: element.style.textAlign === 'center' ? 'center' : 
+                                 element.style.textAlign === 'right' ? 'flex-end' : 'flex-start',
+                  padding: '4px',
+                  minHeight: '20px',
+                  minWidth: '50px'
                 }}
                 onClick={(e) => handleElementClick(element.id, e)}
                 onMouseDown={(e) => handleElementMouseDown(e, element.id)}
@@ -839,7 +1021,13 @@ ${bodyContent}
                         updateStaticElement(element.id, { isEditing: false });
                       }
                     }}
-                    className="w-full h-full border-none outline-none bg-transparent"
+                    className="w-full h-full border-none outline-none bg-transparent resize-none"
+                    style={{
+                      fontSize: element.style.fontSize,
+                      fontWeight: element.style.fontWeight,
+                      textAlign: element.style.textAlign,
+                      color: element.style.color,
+                    }}
                     autoFocus
                   />
                 ) : (
@@ -847,16 +1035,41 @@ ${bodyContent}
                     onDoubleClick={() =>
                       updateStaticElement(element.id, { isEditing: true })
                     }
-                    className="w-full h-full flex items-center"
+                    className="w-full h-full break-words whitespace-pre-wrap"
+                    style={{
+                      lineHeight: '1.2',
+                      maxHeight: '100%',
+                      overflow: 'hidden'
+                    }}
                   >
                     {element.content}
                   </div>
                 )}
 
                 {selectedElement === element.id && (
-                  <div className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                    Static Text (Double-click to edit)
-                  </div>
+                  <>
+                    {/* Selection Label */}
+                    <div className="absolute -top-8 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
+                      Static Text (Double-click to edit)
+                    </div>
+                    
+                    {/* Resize Handles */}
+                    <div
+                      className="absolute -bottom-2 -right-2 w-4 h-4 bg-blue-500 cursor-nw-resize z-20 rounded-sm"
+                      onMouseDown={(e) => handleResizeStart(e, element.id, 'both')}
+                      title="Resize"
+                    />
+                    <div
+                      className="absolute top-1/2 -right-2 w-2 h-4 bg-blue-500 cursor-ew-resize z-20 rounded-sm transform -translate-y-1/2"
+                      onMouseDown={(e) => handleResizeStart(e, element.id, 'width')}
+                      title="Resize width"
+                    />
+                    <div
+                      className="absolute -bottom-2 left-1/2 w-4 h-2 bg-blue-500 cursor-ns-resize z-20 rounded-sm transform -translate-x-1/2"
+                      onMouseDown={(e) => handleResizeStart(e, element.id, 'height')}
+                      title="Resize height"
+                    />
+                  </>
                 )}
               </div>
             ))}
@@ -865,51 +1078,78 @@ ${bodyContent}
             {dynamicFields.map((field) => (
               <div
                 key={field.id}
-                className={`absolute cursor-move border-2 transition-all ${
+                className={`absolute select-none border-2 transition-all ${
                   selectedElement === field.id
-                    ? "border-green-500 shadow-lg"
-                    : "border-dashed border-gray-400"
-                } hover:border-green-400 hover:shadow-md bg-green-50 bg-opacity-50`}
+                    ? "border-green-500 shadow-lg z-10"
+                    : "border-dashed border-gray-400 hover:border-green-400"
+                } hover:shadow-md`}
                 style={{
                   left: field.position.x,
                   top: field.position.y,
                   width: field.size.width,
                   height: field.size.height,
-                  padding: "4px",
-                  fontSize: "12px",
                   backgroundColor:
                     selectedElement === field.id
                       ? "rgba(34, 197, 94, 0.2)"
                       : "rgba(34, 197, 94, 0.1)",
+                  cursor: isDragging && draggedElementId === field.id ? 'grabbing' : 'grab',
+                  overflow: 'hidden',
+                  minHeight: '30px',
+                  minWidth: '100px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  padding: '4px'
                 }}
                 onClick={(e) => handleElementClick(field.id, e)}
                 onMouseDown={(e) => handleElementMouseDown(e, field.id)}
               >
-                <div className="text-green-700 font-medium truncate">
+                <div className="text-green-700 font-medium text-xs truncate leading-tight">
                   {field.label}
                 </div>
-                <div className="text-green-600 text-xs truncate">
+                <div className="text-green-600 text-xs truncate leading-tight">
                   {field.dataMapping
                     ? `📊 ${field.dataMapping}`
                     : "⚠️ No data mapping"}
                 </div>
-                <div className="text-green-500 text-xs">
+                <div className="text-green-500 text-xs truncate leading-tight">
                   {`{{${field.fieldName}}}`}
                 </div>
 
                 {selectedElement === field.id && (
-                  <div className="absolute -top-6 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                    Dynamic Field (Configure mapping →)
-                  </div>
+                  <>
+                    {/* Selection Label */}
+                    <div className="absolute -top-8 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
+                      Dynamic Field (Configure mapping →)
+                    </div>
+                    
+                    {/* Resize Handles */}
+                    <div
+                      className="absolute -bottom-2 -right-2 w-4 h-4 bg-green-500 cursor-nw-resize z-20 rounded-sm"
+                      onMouseDown={(e) => handleResizeStart(e, field.id, 'both')}
+                      title="Resize"
+                    />
+                    <div
+                      className="absolute top-1/2 -right-2 w-2 h-4 bg-green-500 cursor-ew-resize z-20 rounded-sm transform -translate-y-1/2"
+                      onMouseDown={(e) => handleResizeStart(e, field.id, 'width')}
+                      title="Resize width"
+                    />
+                    <div
+                      className="absolute -bottom-2 left-1/2 w-4 h-2 bg-green-500 cursor-ns-resize z-20 rounded-sm transform -translate-x-1/2"
+                      onMouseDown={(e) => handleResizeStart(e, field.id, 'height')}
+                      title="Resize height"
+                    />
+                  </>
                 )}
 
                 {!field.dataMapping && (
-                  <div className="absolute -top-3 -right-3 w-6 h-6 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center">
+                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center z-20">
                     !
                   </div>
                 )}
               </div>
             ))}
+            </div>
           </div>
         </div>
       </div>
@@ -962,6 +1202,50 @@ ${bodyContent}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       rows={3}
                     />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Width (px)
+                      </label>
+                      <input
+                        type="number"
+                        value={staticElement.size.width}
+                        onChange={(e) =>
+                          updateStaticElement(selectedElement, {
+                            size: {
+                              ...staticElement.size,
+                              width: Math.max(50, parseInt(e.target.value) || 50),
+                            },
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        min="50"
+                        max="800"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Height (px)
+                      </label>
+                      <input
+                        type="number"
+                        value={staticElement.size.height}
+                        onChange={(e) =>
+                          updateStaticElement(selectedElement, {
+                            size: {
+                              ...staticElement.size,
+                              height: Math.max(20, parseInt(e.target.value) || 20),
+                            },
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        min="20"
+                        max="600"
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -1173,6 +1457,50 @@ ${bodyContent}
                         Required Field
                       </span>
                     </label>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Width (px)
+                      </label>
+                      <input
+                        type="number"
+                        value={dynamicField.size.width}
+                        onChange={(e) =>
+                          updateDynamicField(selectedElement, {
+                            size: {
+                              ...dynamicField.size,
+                              width: Math.max(100, parseInt(e.target.value) || 100),
+                            },
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        min="100"
+                        max="800"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Height (px)
+                      </label>
+                      <input
+                        type="number"
+                        value={dynamicField.size.height}
+                        onChange={(e) =>
+                          updateDynamicField(selectedElement, {
+                            size: {
+                              ...dynamicField.size,
+                              height: Math.max(30, parseInt(e.target.value) || 30),
+                            },
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        min="30"
+                        max="600"
+                      />
+                    </div>
                   </div>
 
                   {dynamicField.fieldType === "select" && (
