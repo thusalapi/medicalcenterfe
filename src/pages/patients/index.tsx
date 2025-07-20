@@ -95,7 +95,10 @@ const PatientsPage: React.FC = () => {
 
         {/* Search Bar */}
         <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
+          <form
+            onSubmit={handleSearch}
+            className="flex flex-col sm:flex-row gap-4"
+          >
             <div className="flex-grow">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -187,7 +190,9 @@ const PatientsPage: React.FC = () => {
                 {/* Table Header */}
                 <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="font-medium text-gray-700">Patient Info</div>
+                    <div className="font-medium text-gray-700">
+                      Patient Info
+                    </div>
                     <div className="font-medium text-gray-700 hidden md:block">
                       Phone Number
                     </div>
@@ -263,7 +268,9 @@ const PatientsPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex-1 flex justify-between sm:hidden">
                         <button
-                          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                          onClick={() =>
+                            setCurrentPage(Math.max(1, currentPage - 1))
+                          }
                           disabled={currentPage === 1}
                           className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -316,7 +323,8 @@ const PatientsPage: React.FC = () => {
         {/* Search Results Info */}
         {searchQuery && patients && patients.length > 0 && (
           <div className="mt-4 text-sm text-gray-600">
-            Found {patients.length} patient{patients.length !== 1 ? "s" : ""} matching "{searchQuery}"
+            Found {patients.length} patient{patients.length !== 1 ? "s" : ""}{" "}
+            matching "{searchQuery}"
           </div>
         )}
       </div>

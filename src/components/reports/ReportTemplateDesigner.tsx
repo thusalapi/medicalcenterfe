@@ -73,7 +73,13 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
       .substring(2, 9)}`;
     let newField: ReportField = {
       id,
-      type,
+      type: type as
+        | "text"
+        | "number"
+        | "date"
+        | "checkbox"
+        | "textarea"
+        | "heading",
       label: getDefaultLabelByType(type),
       x: 50,
       y: 50,
@@ -434,17 +440,11 @@ const DraggableField: React.FC<DraggableFieldProps> = ({ field, isActive }) => {
         <span className="text-gray-500">{field.label}: </span>
       )}
       {field.type === "text" && "[Text Input]"}
-      {field.type === "number" && "[Number Input]"}{" "}
+      {field.type === "number" && "[Number Input]"}
       {field.type === "date" && "[Date Input]"}
       {field.type === "checkbox" && "[Checkbox]"}
       {field.type === "textarea" && "[Text Area]"}
       {field.type === "heading" && field.label}
-      {field.type === "pie-chart" && (
-        <ChartField type="pie" width={250} height={180} />
-      )}
-      {field.type === "bar-chart" && (
-        <ChartField type="bar" width={250} height={180} />
-      )}
     </div>
   );
 };

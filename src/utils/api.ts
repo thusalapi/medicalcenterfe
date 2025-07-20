@@ -468,3 +468,105 @@ export const medicineAPI = {
     return response.data;
   },
 };
+
+// Report Template API functions
+export const reportTemplateAPI = {
+  // Get all templates
+  getAllTemplates: async () => {
+    const response = await api.get("/report-templates");
+    return response.data;
+  },
+
+  // Get template by ID
+  getTemplateById: async (templateId: number) => {
+    const response = await api.get(`/report-templates/${templateId}`);
+    return response.data;
+  },
+
+  // Get templates by category
+  getTemplatesByCategory: async (category: string) => {
+    const response = await api.get(`/report-templates/category/${category}`);
+    return response.data;
+  },
+
+  // Get available categories
+  getCategories: async () => {
+    const response = await api.get("/report-templates/categories");
+    return response.data;
+  },
+
+  // Create new template
+  createTemplate: async (templateData: any) => {
+    console.log(
+      "Sending template data to API:",
+      JSON.stringify(templateData, null, 2)
+    );
+    try {
+      const response = await api.post("/report-templates", templateData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating template:", error);
+      throw error;
+    }
+  },
+
+  // Update template
+  updateTemplate: async (templateId: number, templateData: any) => {
+    const response = await api.put(
+      `/report-templates/${templateId}`,
+      templateData
+    );
+    return response.data;
+  },
+
+  // Delete template (deactivate)
+  deleteTemplate: async (templateId: number) => {
+    await api.delete(`/report-templates/${templateId}`);
+  },
+
+  // Get template fields
+  getTemplateFields: async (templateId: number) => {
+    const response = await api.get(`/report-templates/${templateId}/fields`);
+    return response.data;
+  },
+
+  // Generate report from template
+  generateReport: async (templateId: number, fieldValues: any) => {
+    const response = await api.post(
+      `/report-templates/${templateId}/generate`,
+      {
+        fieldValues,
+      }
+    );
+    return response.data;
+  },
+
+  // Generate PDF from template
+  generateReportPdf: async (templateId: number, fieldValues: any) => {
+    const response = await api.post(
+      `/report-templates/${templateId}/generate/pdf`,
+      {
+        fieldValues,
+      },
+      {
+        responseType: "blob",
+      }
+    );
+    return response.data;
+  },
+
+  // Generate preview
+  generatePreview: async (templateData: any) => {
+    const response = await api.post("/report-templates/preview", templateData);
+    return response.data;
+  },
+
+  // Validate template structure
+  validateTemplate: async (templateId: number, validationData: any) => {
+    const response = await api.post(
+      `/report-templates/${templateId}/validate`,
+      validationData
+    );
+    return response.data;
+  },
+};

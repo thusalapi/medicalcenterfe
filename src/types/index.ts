@@ -56,18 +56,100 @@ export interface LabTemplateImportResult {
   skipped: string[];
 }
 
+// Report Field types for drag-and-drop template designer
 export interface ReportField {
   id: string;
+  type: "text" | "number" | "date" | "checkbox" | "textarea" | "heading";
   label: string;
-  type: string; // text, number, date, checkbox, textarea, heading, pie-chart, bar-chart
-  x?: number;
-  y?: number;
-  fontSize?: number;
-  bold?: boolean;
-  showLabel?: boolean;
-  chartData?: any; // For chart-type fields
+  x: number;
+  y: number;
+  fontSize: number;
+  bold: boolean;
+  showLabel: boolean;
 }
 
+// Dynamic Field types for template system
+export interface DynamicField {
+  id: string;
+  fieldName: string;
+  fieldType: "text" | "number" | "date" | "textarea" | "select" | "checkbox";
+  label: string;
+  placeholder?: string;
+  required: boolean;
+  options?: string[];
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  dbMapping?: string;
+}
+
+// Static Element types for template system
+export interface StaticElement {
+  id: string;
+  type: "text" | "heading" | "subheading" | "line" | "image" | "table";
+  content: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  style: {
+    fontSize: number;
+    fontWeight: "normal" | "bold";
+    textAlign: "left" | "center" | "right";
+    color: string;
+    backgroundColor?: string;
+  };
+}
+
+// Report Template types
+export interface ReportTemplate {
+  templateId: number;
+  templateName: string;
+  description?: string;
+  category: string;
+  staticContent: any;
+  dynamicFields: any;
+  layoutConfig: any;
+  isActive: boolean;
+  createdDate: string;
+  lastModifiedDate?: string;
+  createdBy?: string;
+}
+
+export interface CreateReportTemplateRequest {
+  templateName: string;
+  description?: string;
+  category: string;
+  staticContent: any;
+  dynamicFields: any;
+  layoutConfig: any;
+}
+
+export interface UpdateReportTemplateRequest {
+  templateName?: string;
+  description?: string;
+  category?: string;
+  staticContent?: any;
+  dynamicFields?: any;
+  layoutConfig?: any;
+}
+
+export interface GenerateReportRequest {
+  fieldValues: Record<string, any>;
+}
+
+export interface ReportTemplateDTO {
+  templateId: number;
+  templateName: string;
+  description?: string;
+  category: string;
+  staticContent: any;
+  dynamicFields: any;
+  layoutConfig: any;
+  isActive: boolean;
+  createdDate: string;
+  lastModifiedDate?: string;
+  createdBy?: string;
+}
+
+// Report types
 export interface Report {
   reportId: number;
   visitId: number;

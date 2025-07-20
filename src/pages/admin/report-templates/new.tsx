@@ -4,14 +4,18 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
 import { reportTypeAPI } from "../../../utils/api";
-import { ReportType, CreateReportTypeRequest } from "../../../types";
+import {
+  ReportType,
+  CreateReportTypeRequest,
+  ReportField,
+} from "../../../types";
 import ReportTemplateDesigner from "../../../components/reports/ReportTemplateDesigner";
 
 export default function NewReportTemplatePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [reportName, setReportName] = useState("");
-  const [fields, setFields] = useState([
+  const [fields, setFields] = useState<ReportField[]>([
     {
       id: `field_${Date.now()}`,
       label: "Patient Name",
@@ -76,13 +80,13 @@ export default function NewReportTemplatePage() {
   };
 
   // Handle fields update from the designer component
-  const handleFieldsChange = (updatedFields: any[]) => {
+  const handleFieldsChange = (updatedFields: ReportField[]) => {
     setFields(updatedFields);
   };
 
   // Add a new field to the template
-  const handleAddField = (type: string) => {
-    const newField = {
+  const handleAddField = (type: ReportField["type"]) => {
+    const newField: ReportField = {
       id: `field_${Date.now()}`,
       label: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Field`,
       type: type,
