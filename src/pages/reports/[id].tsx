@@ -38,6 +38,18 @@ const ReportDetailPage: React.FC = () => {
     }
   );
 
+  // Fetch report data with human-readable labels
+  const { data: reportDataWithLabels, isLoading: isLoadingLabels } = useQuery(
+    ["reportDataWithLabels", reportId],
+    () => reportAPI.getReportDataWithLabels(reportId as number),
+    {
+      enabled: !!reportId,
+      onError: (err: any) => {
+        console.error("Failed to fetch report data with labels:", err);
+      },
+    }
+  );
+
   const handleGeneratePdf = async () => {
     if (!reportId) return;
 
@@ -64,6 +76,32 @@ const ReportDetailPage: React.FC = () => {
     }
   };
 
+  const handleGenerateFormattedPdf = async () => {
+    if (!reportId) return;
+
+    setIsGeneratingPdf(true);
+    try {
+      const pdfBlob = await reportAPI.generateReportPdfWithLabels(reportId);
+
+      // Create download link
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `report-${reportId}-formatted.pdf`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to generate formatted PDF:", error);
+      alert("Failed to generate formatted PDF. Please try again.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -76,7 +114,7 @@ const ReportDetailPage: React.FC = () => {
     router.push("/reports");
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingLabels) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
@@ -161,6 +199,19 @@ const ReportDetailPage: React.FC = () => {
                 <FaDownload className="mr-2" />
               )}
               {isGeneratingPdf ? "Generating..." : "Download PDF"}
+            </button>
+
+            <button
+              onClick={handleGenerateFormattedPdf}
+              disabled={isGeneratingPdf}
+              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isGeneratingPdf ? (
+                <LoadingSpinner size="sm" className="mr-2" />
+              ) : (
+                <FaDownload className="mr-2" />
+              )}
+              {isGeneratingPdf ? "Generating..." : "Formatted PDF"}
             </button>
           </div>
         </div>
@@ -253,9 +304,39 @@ const ReportDetailPage: React.FC = () => {
                         <h3 className="text-lg font-semibold mb-3">
                           Report Data:
                         </h3>
-                        <pre className="bg-gray-50 p-4 rounded-md text-sm overflow-auto">
-                          {JSON.stringify(report.reportData, null, 2)}
-                        </pre>
+                        {/* Display with human-readable field names if available */}
+                        {reportDataWithLabels &&
+                        Object.keys(reportDataWithLabels).length > 0 ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Object.entries(reportDataWithLabels).map(
+                              ([fieldLabel, value]) => (
+                                <div
+                                  key={fieldLabel}
+                                  className="bg-gray-50 p-4 rounded-md"
+                                >
+                                  <dt className="text-sm font-medium text-gray-500 mb-1">
+                                    {fieldLabel}
+                                  </dt>
+                                  <dd className="text-sm text-gray-900">
+                                    {value !== null &&
+                                    value !== undefined &&
+                                    value !== "" ? (
+                                      String(value)
+                                    ) : (
+                                      <span className="text-gray-400 italic">
+                                        Not specified
+                                      </span>
+                                    )}
+                                  </dd>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        ) : (
+                          <pre className="bg-gray-50 p-4 rounded-md text-sm overflow-auto">
+                            {JSON.stringify(report.reportData, null, 2)}
+                          </pre>
+                        )}
                       </div>
                     )}
                   </div>

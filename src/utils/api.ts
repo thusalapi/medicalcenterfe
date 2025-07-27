@@ -265,6 +265,26 @@ export const reportAPI = {
     });
     return response.data;
   },
+
+  // Generate PDF with human-readable field labels
+  generateReportPdfWithLabels: async (reportId: number) => {
+    const response = await api.get(`/reports/${reportId}/pdf-with-labels`, {
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
+  // Get field labels for report
+  getFieldLabelsForReport: async (reportId: number) => {
+    const response = await api.get(`/reports/${reportId}/field-labels`);
+    return response.data;
+  },
+
+  // Get report data with human-readable labels
+  getReportDataWithLabels: async (reportId: number) => {
+    const response = await api.get(`/reports/${reportId}/data-with-labels`);
+    return response.data;
+  },
 };
 
 // Bill API functions
