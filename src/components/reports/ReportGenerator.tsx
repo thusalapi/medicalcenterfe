@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
-import { reportTemplateAPI, patientAPI, visitAPI } from "../../utils/api";
+import {
+  reportTemplateAPI,
+  patientAPI,
+  visitAPI,
+  reportAPI,
+} from "../../utils/api";
 import {
   FaFileAlt,
   FaDownload,
@@ -203,6 +208,35 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
     }
   );
 
+  // Save report mutation
+  const saveReportMutation = useMutation(
+    () => {
+      if (!visitId) {
+        throw new Error("Visit ID is required to save report");
+      }
+      return reportAPI.createReportFromTemplate(
+        visitId,
+        templateId,
+        fieldValues
+      );
+    },
+    {
+      onSuccess: (reportData) => {
+        setError(null);
+        alert("Report saved successfully!");
+        if (onGenerated) {
+          onGenerated(reportData.reportId);
+        }
+      },
+      onError: (err: any) => {
+        setError(
+          err.response?.data?.message ||
+            "Failed to save report. Please try again."
+        );
+      },
+    }
+  );
+
   useEffect(() => {
     // Auto-populate patient data if available
     if (patientId && template) {
@@ -240,6 +274,14 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
 
   const handleGeneratePdf = () => {
     generatePdfMutation.mutate();
+  };
+
+  const handleSaveReport = () => {
+    if (!visitId) {
+      setError("Visit ID is required to save report");
+      return;
+    }
+    saveReportMutation.mutate();
   };
 
   const handlePrintReport = () => {
@@ -434,6 +476,20 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
               )}
               Preview
             </button>
+            {visitId && (
+              <button
+                onClick={handleSaveReport}
+                disabled={saveReportMutation.isLoading}
+                className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
+              >
+                {saveReportMutation.isLoading ? (
+                  <FaSpinner className="animate-spin mr-2" />
+                ) : (
+                  <FaSave className="mr-2" />
+                )}
+                Save Report
+              </button>
+            )}
             <button
               onClick={handlePrintReport}
               disabled={!reportContent}

@@ -144,18 +144,6 @@ export const visitAPI = {
     const response = await api.get(url);
     return response.data;
   },
-
-  // Add report to visit
-  addReportToVisit: async (visitId: number, reportData: any) => {
-    const response = await api.post(`/visits/${visitId}/reports`, reportData);
-    return response.data;
-  },
-
-  // Get reports for visit
-  getReportsForVisit: async (visitId: number) => {
-    const response = await api.get(`/visits/${visitId}/reports`);
-    return response.data;
-  },
 };
 
 // Report Type API functions
@@ -216,9 +204,22 @@ export const reportTypeAPI = {
 
 // Report API functions
 export const reportAPI = {
-  // Create new report
-  createReport: async (reportData: any) => {
-    const response = await api.post("/reports", reportData);
+  // Create new report through visit
+  createReport: async (visitId: number, reportData: any) => {
+    const response = await api.post(`/visits/${visitId}/reports`, reportData);
+    return response.data;
+  },
+
+  // Create report from template
+  createReportFromTemplate: async (
+    visitId: number,
+    templateId: number,
+    fieldValues: any
+  ) => {
+    const response = await api.post(
+      `/visits/${visitId}/reports/from-template/${templateId}`,
+      fieldValues
+    );
     return response.data;
   },
 
@@ -253,7 +254,7 @@ export const reportAPI = {
 
   // Get reports for visit
   getReportsForVisit: async (visitId: number) => {
-    const response = await api.get(`/reports/visit/${visitId}`);
+    const response = await api.get(`/visits/${visitId}/reports`);
     return response.data;
   },
 

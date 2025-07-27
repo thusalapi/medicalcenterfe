@@ -74,9 +74,15 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   const [showTemplateOptions, setShowTemplateOptions] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeElement, setResizeElement] = useState<string | null>(null);
-  const [resizeDirection, setResizeDirection] = useState<'width' | 'height' | 'both' | null>(null);
-  const [pageOrientation, setPageOrientation] = useState<'portrait' | 'landscape'>('portrait');
-  const [pageSize, setPageSize] = useState<'A4' | 'A3' | 'Letter' | 'Legal'>('A4');
+  const [resizeDirection, setResizeDirection] = useState<
+    "width" | "height" | "both" | null
+  >(null);
+  const [pageOrientation, setPageOrientation] = useState<
+    "portrait" | "landscape"
+  >("portrait");
+  const [pageSize, setPageSize] = useState<"A4" | "A3" | "Letter" | "Legal">(
+    "A4"
+  );
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -119,16 +125,16 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
 
   // Page size configurations
   const pageSizes = {
-    A4: { width: 794, height: 1123, label: 'A4 (210 × 297 mm)' },
-    A3: { width: 1123, height: 1587, label: 'A3 (297 × 420 mm)' },
-    Letter: { width: 816, height: 1056, label: 'Letter (8.5 × 11 in)' },
-    Legal: { width: 816, height: 1344, label: 'Legal (8.5 × 14 in)' }
+    A4: { width: 794, height: 1123, label: "A4 (210 × 297 mm)" },
+    A3: { width: 1123, height: 1587, label: "A3 (297 × 420 mm)" },
+    Letter: { width: 816, height: 1056, label: "Letter (8.5 × 11 in)" },
+    Legal: { width: 816, height: 1344, label: "Legal (8.5 × 14 in)" },
   };
 
   // Get current canvas dimensions based on page size and orientation
   const getCanvasDimensions = () => {
     const size = pageSizes[pageSize];
-    if (pageOrientation === 'landscape') {
+    if (pageOrientation === "landscape") {
       return { width: size.height, height: size.width };
     }
     return { width: size.width, height: size.height };
@@ -156,7 +162,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
 
   const initializeDefaultTemplate = () => {
     const canvasDims = getCanvasDimensions();
-    
+
     const defaultTitle: StaticElement = {
       id: "title-1",
       type: "text",
@@ -319,7 +325,11 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   };
 
   // Handle resize start
-  const handleResizeStart = (e: React.MouseEvent, elementId: string, direction: 'width' | 'height' | 'both') => {
+  const handleResizeStart = (
+    e: React.MouseEvent,
+    elementId: string,
+    direction: "width" | "height" | "both"
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     setIsResizing(true);
@@ -338,7 +348,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     // Handle dragging
     if (isDragging && draggedElementId) {
       e.preventDefault();
-      
+
       // Update position for static elements
       const staticElement = staticElements.find(
         (el) => el.id === draggedElementId
@@ -363,35 +373,39 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
     // Handle resizing
     if (isResizing && resizeElement && resizeDirection) {
       e.preventDefault();
-      
-      const staticElement = staticElements.find(el => el.id === resizeElement);
-      const dynamicField = dynamicFields.find(field => field.id === resizeElement);
-      
+
+      const staticElement = staticElements.find(
+        (el) => el.id === resizeElement
+      );
+      const dynamicField = dynamicFields.find(
+        (field) => field.id === resizeElement
+      );
+
       if (staticElement) {
         const currentPos = staticElement.position;
         let newSize = { ...staticElement.size };
-        
-        if (resizeDirection === 'width' || resizeDirection === 'both') {
+
+        if (resizeDirection === "width" || resizeDirection === "both") {
           newSize.width = Math.max(50, x - currentPos.x);
         }
-        if (resizeDirection === 'height' || resizeDirection === 'both') {
+        if (resizeDirection === "height" || resizeDirection === "both") {
           newSize.height = Math.max(20, y - currentPos.y);
         }
-        
+
         updateStaticElement(resizeElement, { size: newSize });
       }
-      
+
       if (dynamicField) {
         const currentPos = dynamicField.position;
         let newSize = { ...dynamicField.size };
-        
-        if (resizeDirection === 'width' || resizeDirection === 'both') {
+
+        if (resizeDirection === "width" || resizeDirection === "both") {
           newSize.width = Math.max(50, x - currentPos.x);
         }
-        if (resizeDirection === 'height' || resizeDirection === 'both') {
+        if (resizeDirection === "height" || resizeDirection === "both") {
           newSize.height = Math.max(20, y - currentPos.y);
         }
-        
+
         updateDynamicField(resizeElement, { size: newSize });
       }
     }
@@ -475,7 +489,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
 
   const generateStaticContent = () => {
     const canvasDims = getCanvasDimensions();
-    
+
     // Convert static elements and dynamic field placeholders to properly formatted HTML
     const bodyParts: string[] = [];
 
@@ -636,7 +650,8 @@ ${bodyContent}
                         Start with pre-configured title and header elements
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        Includes: "Medical Report Template" title and "Patient Information" header
+                        Includes: "Medical Report Template" title and "Patient
+                        Information" header
                       </p>
                     </div>
                   </div>
@@ -678,860 +693,906 @@ ${bodyContent}
 
       {/* Main Template Designer */}
       <div className="template-designer h-screen flex">
-      {/* Left Sidebar - Tools */}
-      <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800">
-            Template Designer
-          </h2>
-        </div>
+        {/* Left Sidebar - Tools */}
+        <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Template Designer
+            </h2>
+          </div>
 
-        {/* Template Info */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Template Name
-              </label>
-              <input
-                type="text"
-                value={templateName}
-                onChange={(e) => setTemplateName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter template name"
-              />
-            </div>
+          {/* Template Info */}
+          <div className="p-4 border-b border-gray-200">
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Template Name
+                </label>
+                <input
+                  type="text"
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter template name"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat.replace("_", " ")}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Template description"
-                rows={2}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Page Size
-              </label>
-              <select
-                value={pageSize}
-                onChange={(e) => setPageSize(e.target.value as any)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {Object.entries(pageSizes).map(([key, config]) => (
-                  <option key={key} value={key}>
-                    {config.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Page Orientation
-              </label>
-              <div className="flex space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setPageOrientation('portrait')}
-                  className={`flex-1 px-3 py-2 text-sm rounded-md border ${
-                    pageOrientation === 'portrait'
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  📄 Portrait
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPageOrientation('landscape')}
-                  className={`flex-1 px-3 py-2 text-sm rounded-md border ${
-                    pageOrientation === 'landscape'
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat.replace("_", " ")}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Template description"
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Page Size
+                </label>
+                <select
+                  value={pageSize}
+                  onChange={(e) => setPageSize(e.target.value as any)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  📃 Landscape
-                </button>
+                  {Object.entries(pageSizes).map(([key, config]) => (
+                    <option key={key} value={key}>
+                      {config.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="mt-1 text-xs text-gray-500">
-                Current: {getCanvasDimensions().width} × {getCanvasDimensions().height} px
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Page Orientation
+                </label>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setPageOrientation("portrait")}
+                    className={`flex-1 px-3 py-2 text-sm rounded-md border ${
+                      pageOrientation === "portrait"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    📄 Portrait
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPageOrientation("landscape")}
+                    className={`flex-1 px-3 py-2 text-sm rounded-md border ${
+                      pageOrientation === "landscape"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    📃 Landscape
+                  </button>
+                </div>
+                <div className="mt-1 text-xs text-gray-500">
+                  Current: {getCanvasDimensions().width} ×{" "}
+                  {getCanvasDimensions().height} px
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Static Elements */}
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            Static Elements
-          </h3>
-          <button
-            onClick={addStaticText}
-            className="w-full flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <FaPlus className="mr-2" />
-            Add Text
-          </button>
-        </div>
-
-        {/* Dynamic Fields */}
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            Dynamic Fields
-          </h3>
-          <div className="space-y-2 mb-4">
-            {availableFields.map((field) => (
-              <div
-                key={field.type}
-                draggable
-                onDragStart={() => setDraggedField(field.type)}
-                className="flex items-center p-2 bg-white border border-gray-200 rounded-md cursor-move hover:bg-gray-50 transition-colors"
-              >
-                <field.icon className="mr-2 text-gray-500" />
-                <span className="text-sm text-gray-700">{field.label}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="bg-green-50 p-3 rounded-md border border-green-200">
-            <h4 className="text-xs font-semibold text-green-800 mb-2">
-              💡 How to use:
-            </h4>
-            <ul className="text-xs text-green-700 space-y-1">
-              <li>• Drag fields to canvas</li>
-              <li>• Click to select and configure</li>
-              <li>• Set data mapping in properties</li>
-              <li>• Move elements by dragging</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Instructions */}
-        <div className="p-4 flex-1">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            Quick Guide
-          </h3>
-          <div className="space-y-3 text-xs text-gray-600">
-            <div className="bg-blue-50 p-2 rounded border border-blue-200">
-              <strong className="text-blue-800">📄 Static Elements:</strong>
-              <p className="mt-1">
-                Permanent content like titles, headers, labels. Double-click to
-                edit.
-              </p>
-            </div>
-
-            <div className="bg-green-50 p-2 rounded border border-green-200">
-              <strong className="text-green-800">📊 Dynamic Fields:</strong>
-              <p className="mt-1">
-                Data placeholders filled during report generation. Must set data
-                mapping!
-              </p>
-            </div>
-
-            <div className="bg-yellow-50 p-2 rounded border border-yellow-200">
-              <strong className="text-yellow-800">⚠️ Required:</strong>
-              <p className="mt-1">
-                All dynamic fields need data mapping before saving.
-              </p>
-            </div>
-
-            <div className="bg-purple-50 p-2 rounded border border-purple-200">
-              <strong className="text-purple-800">📏 Page Layout:</strong>
-              <p className="mt-1">
-                Choose page size and orientation to match your report needs. Canvas adjusts automatically.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="p-4 border-t border-gray-200 space-y-2">
-          <div className="flex space-x-2 mb-2">
+          {/* Static Elements */}
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              Static Elements
+            </h3>
             <button
-              onClick={resetTemplate}
-              className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm"
-              title="Reset and choose template type"
+              onClick={addStaticText}
+              className="w-full flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
-              <FaPlus className="mr-1" />
-              Reset
-            </button>
-            <button
-              onClick={initializeBlankTemplate}
-              className="flex-1 flex items-center justify-center px-3 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 text-sm"
-              title="Clear all content"
-            >
-              Clear All
+              <FaPlus className="mr-2" />
+              Add Text
             </button>
           </div>
-          
-          <button
-            onClick={handleSave}
-            className="w-full flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            <FaSave className="mr-2" />
-            Save Template
-          </button>
-          <button
-            onClick={handlePreview}
-            className="w-full flex items-center justify-center px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-          >
-            <FaEye className="mr-2" />
-            Preview
-          </button>
-        </div>
-      </div>
 
-      {/* Main Canvas */}
-      <div className="flex-1 flex flex-col">
-        <div className="bg-white border-b border-gray-200 p-4">
-          <h1 className="text-xl font-semibold text-gray-800">
-            {templateName || "New Template"}
-          </h1>
-        </div>
+          {/* Dynamic Fields */}
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              Dynamic Fields
+            </h3>
+            <div className="space-y-2 mb-4">
+              {availableFields.map((field) => (
+                <div
+                  key={field.type}
+                  draggable
+                  onDragStart={() => setDraggedField(field.type)}
+                  className="flex items-center p-2 bg-white border border-gray-200 rounded-md cursor-move hover:bg-gray-50 transition-colors"
+                >
+                  <field.icon className="mr-2 text-gray-500" />
+                  <span className="text-sm text-gray-700">{field.label}</span>
+                </div>
+              ))}
+            </div>
 
-        <div className="flex-1 p-6 bg-gray-100 overflow-auto">
-          {/* Page Information Bar */}
-          <div className="mb-4 flex justify-center">
-            <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center space-x-4 text-sm text-gray-600">
-              <div className="flex items-center space-x-1">
-                <span className="font-medium">Page:</span>
-                <span>{pageSizes[pageSize].label}</span>
+            <div className="bg-green-50 p-3 rounded-md border border-green-200">
+              <h4 className="text-xs font-semibold text-green-800 mb-2">
+                💡 How to use:
+              </h4>
+              <ul className="text-xs text-green-700 space-y-1">
+                <li>• Drag fields to canvas</li>
+                <li>• Click to select and configure</li>
+                <li>• Set data mapping in properties</li>
+                <li>• Move elements by dragging</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className="p-4 flex-1">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              Quick Guide
+            </h3>
+            <div className="space-y-3 text-xs text-gray-600">
+              <div className="bg-blue-50 p-2 rounded border border-blue-200">
+                <strong className="text-blue-800">📄 Static Elements:</strong>
+                <p className="mt-1">
+                  Permanent content like titles, headers, labels. Double-click
+                  to edit.
+                </p>
               </div>
-              <div className="w-px h-4 bg-gray-300"></div>
-              <div className="flex items-center space-x-1">
-                <span className="font-medium">Orientation:</span>
-                <span className="capitalize">{pageOrientation}</span>
+
+              <div className="bg-green-50 p-2 rounded border border-green-200">
+                <strong className="text-green-800">📊 Dynamic Fields:</strong>
+                <p className="mt-1">
+                  Data placeholders filled during report generation. Must set
+                  data mapping!
+                </p>
               </div>
-              <div className="w-px h-4 bg-gray-300"></div>
-              <div className="flex items-center space-x-1">
-                <span className="font-medium">Canvas:</span>
-                <span>{getCanvasDimensions().width} × {getCanvasDimensions().height} px</span>
+
+              <div className="bg-yellow-50 p-2 rounded border border-yellow-200">
+                <strong className="text-yellow-800">⚠️ Required:</strong>
+                <p className="mt-1">
+                  All dynamic fields need data mapping before saving.
+                </p>
+              </div>
+
+              <div className="bg-purple-50 p-2 rounded border border-purple-200">
+                <strong className="text-purple-800">📏 Page Layout:</strong>
+                <p className="mt-1">
+                  Choose page size and orientation to match your report needs.
+                  Canvas adjusts automatically.
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Notification */}
-          {showNotification && (
-            <div
-              className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-sm ${
-                showNotification.type === "success"
-                  ? "bg-green-100 text-green-800 border border-green-200"
-                  : showNotification.type === "warning"
-                  ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                  : showNotification.type === "error"
-                  ? "bg-red-100 text-red-800 border border-red-200"
-                  : "bg-blue-100 text-blue-800 border border-blue-200"
-              }`}
-            >
-              {showNotification.message}
+          {/* Actions */}
+          <div className="p-4 border-t border-gray-200 space-y-2">
+            <div className="flex space-x-2 mb-2">
+              <button
+                onClick={resetTemplate}
+                className="flex-1 flex items-center justify-center px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm"
+                title="Reset and choose template type"
+              >
+                <FaPlus className="mr-1" />
+                Reset
+              </button>
+              <button
+                onClick={initializeBlankTemplate}
+                className="flex-1 flex items-center justify-center px-3 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 text-sm"
+                title="Clear all content"
+              >
+                Clear All
+              </button>
             </div>
-          )}
 
-          <div className="flex justify-center">
-            <div
-              ref={canvasRef}
-              className="relative bg-white border-2 border-gray-300 shadow-lg rounded-lg overflow-hidden"
-              style={{ 
-                width: `${getCanvasDimensions().width}px`, 
-                height: `${getCanvasDimensions().height}px`, 
-                minHeight: `${getCanvasDimensions().height}px`,
-                maxWidth: '90vw',
-                transform: getCanvasDimensions().width > 1000 ? 'scale(0.8)' : 'scale(1)',
-                transformOrigin: 'top center'
-              }}
-              onDrop={handleCanvasDrop}
-              onDragOver={(e) => e.preventDefault()}
-              onMouseMove={handleCanvasMouseMove}
-              onMouseUp={handleCanvasMouseUp}
+            <button
+              onClick={handleSave}
+              className="w-full flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
-            {/* Static Elements */}
-            {staticElements.map((element) => (
+              <FaSave className="mr-2" />
+              Save Template
+            </button>
+            <button
+              onClick={handlePreview}
+              className="w-full flex items-center justify-center px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+            >
+              <FaEye className="mr-2" />
+              Preview
+            </button>
+          </div>
+        </div>
+
+        {/* Main Canvas */}
+        <div className="flex-1 flex flex-col">
+          <div className="bg-white border-b border-gray-200 p-4">
+            <h1 className="text-xl font-semibold text-gray-800">
+              {templateName || "New Template"}
+            </h1>
+          </div>
+
+          <div className="flex-1 p-6 bg-gray-100 overflow-auto">
+            {/* Page Information Bar */}
+            <div className="mb-4 flex justify-center">
+              <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-1">
+                  <span className="font-medium">Page:</span>
+                  <span>{pageSizes[pageSize].label}</span>
+                </div>
+                <div className="w-px h-4 bg-gray-300"></div>
+                <div className="flex items-center space-x-1">
+                  <span className="font-medium">Orientation:</span>
+                  <span className="capitalize">{pageOrientation}</span>
+                </div>
+                <div className="w-px h-4 bg-gray-300"></div>
+                <div className="flex items-center space-x-1">
+                  <span className="font-medium">Canvas:</span>
+                  <span>
+                    {getCanvasDimensions().width} ×{" "}
+                    {getCanvasDimensions().height} px
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Notification */}
+            {showNotification && (
               <div
-                key={element.id}
-                className={`absolute select-none border-2 transition-all ${
-                  selectedElement === element.id
-                    ? "border-blue-500 shadow-lg z-10"
-                    : "border-transparent hover:border-blue-300"
-                } hover:shadow-md`}
+                className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg max-w-sm ${
+                  showNotification.type === "success"
+                    ? "bg-green-100 text-green-800 border border-green-200"
+                    : showNotification.type === "warning"
+                    ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                    : showNotification.type === "error"
+                    ? "bg-red-100 text-red-800 border border-red-200"
+                    : "bg-blue-100 text-blue-800 border border-blue-200"
+                }`}
+              >
+                {showNotification.message}
+              </div>
+            )}
+
+            <div className="flex justify-center">
+              <div
+                ref={canvasRef}
+                className="relative bg-white border-2 border-gray-300 shadow-lg rounded-lg overflow-hidden"
                 style={{
-                  left: element.position.x,
-                  top: element.position.y,
-                  width: element.size.width,
-                  height: element.size.height,
-                  fontSize: element.style.fontSize,
-                  fontWeight: element.style.fontWeight,
-                  textAlign: element.style.textAlign,
-                  color: element.style.color,
-                  backgroundColor:
-                    selectedElement === element.id
-                      ? "rgba(59, 130, 246, 0.1)"
-                      : "transparent",
-                  cursor: isDragging && draggedElementId === element.id ? 'grabbing' : 'grab',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: element.style.textAlign === 'center' ? 'center' : 
-                                 element.style.textAlign === 'right' ? 'flex-end' : 'flex-start',
-                  padding: '4px',
-                  minHeight: '20px',
-                  minWidth: '50px'
+                  width: `${getCanvasDimensions().width}px`,
+                  height: `${getCanvasDimensions().height}px`,
+                  minHeight: `${getCanvasDimensions().height}px`,
+                  maxWidth: "90vw",
+                  transform:
+                    getCanvasDimensions().width > 1000
+                      ? "scale(0.8)"
+                      : "scale(1)",
+                  transformOrigin: "top center",
                 }}
-                onClick={(e) => handleElementClick(element.id, e)}
-                onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+                onDrop={handleCanvasDrop}
+                onDragOver={(e) => e.preventDefault()}
+                onMouseMove={handleCanvasMouseMove}
+                onMouseUp={handleCanvasMouseUp}
               >
-                {element.isEditing ? (
-                  <input
-                    type="text"
-                    value={element.content}
-                    onChange={(e) =>
-                      updateStaticElement(element.id, {
-                        content: e.target.value,
-                      })
-                    }
-                    onBlur={() =>
-                      updateStaticElement(element.id, { isEditing: false })
-                    }
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        updateStaticElement(element.id, { isEditing: false });
-                      }
-                    }}
-                    className="w-full h-full border-none outline-none bg-transparent resize-none"
+                {/* Static Elements */}
+                {staticElements.map((element) => (
+                  <div
+                    key={element.id}
+                    className={`absolute select-none border-2 transition-all ${
+                      selectedElement === element.id
+                        ? "border-blue-500 shadow-lg z-10"
+                        : "border-transparent hover:border-blue-300"
+                    } hover:shadow-md`}
                     style={{
+                      left: element.position.x,
+                      top: element.position.y,
+                      width: element.size.width,
+                      height: element.size.height,
                       fontSize: element.style.fontSize,
                       fontWeight: element.style.fontWeight,
                       textAlign: element.style.textAlign,
                       color: element.style.color,
+                      backgroundColor:
+                        selectedElement === element.id
+                          ? "rgba(59, 130, 246, 0.1)"
+                          : "transparent",
+                      cursor:
+                        isDragging && draggedElementId === element.id
+                          ? "grabbing"
+                          : "grab",
+                      overflow: "hidden",
+                      wordWrap: "break-word",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent:
+                        element.style.textAlign === "center"
+                          ? "center"
+                          : element.style.textAlign === "right"
+                          ? "flex-end"
+                          : "flex-start",
+                      padding: "4px",
+                      minHeight: "20px",
+                      minWidth: "50px",
                     }}
-                    autoFocus
-                  />
-                ) : (
-                  <div
-                    onDoubleClick={() =>
-                      updateStaticElement(element.id, { isEditing: true })
-                    }
-                    className="w-full h-full break-words whitespace-pre-wrap"
-                    style={{
-                      lineHeight: '1.2',
-                      maxHeight: '100%',
-                      overflow: 'hidden'
-                    }}
+                    onClick={(e) => handleElementClick(element.id, e)}
+                    onMouseDown={(e) => handleElementMouseDown(e, element.id)}
                   >
-                    {element.content}
+                    {element.isEditing ? (
+                      <input
+                        type="text"
+                        value={element.content}
+                        onChange={(e) =>
+                          updateStaticElement(element.id, {
+                            content: e.target.value,
+                          })
+                        }
+                        onBlur={() =>
+                          updateStaticElement(element.id, { isEditing: false })
+                        }
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            updateStaticElement(element.id, {
+                              isEditing: false,
+                            });
+                          }
+                        }}
+                        className="w-full h-full border-none outline-none bg-transparent resize-none"
+                        style={{
+                          fontSize: element.style.fontSize,
+                          fontWeight: element.style.fontWeight,
+                          textAlign: element.style.textAlign,
+                          color: element.style.color,
+                        }}
+                        autoFocus
+                      />
+                    ) : (
+                      <div
+                        onDoubleClick={() =>
+                          updateStaticElement(element.id, { isEditing: true })
+                        }
+                        className="w-full h-full break-words whitespace-pre-wrap"
+                        style={{
+                          lineHeight: "1.2",
+                          maxHeight: "100%",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {element.content}
+                      </div>
+                    )}
+
+                    {selectedElement === element.id && (
+                      <>
+                        {/* Selection Label */}
+                        <div className="absolute -top-8 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
+                          Static Text (Double-click to edit)
+                        </div>
+
+                        {/* Resize Handles */}
+                        <div
+                          className="absolute -bottom-2 -right-2 w-4 h-4 bg-blue-500 cursor-nw-resize z-20 rounded-sm"
+                          onMouseDown={(e) =>
+                            handleResizeStart(e, element.id, "both")
+                          }
+                          title="Resize"
+                        />
+                        <div
+                          className="absolute top-1/2 -right-2 w-2 h-4 bg-blue-500 cursor-ew-resize z-20 rounded-sm transform -translate-y-1/2"
+                          onMouseDown={(e) =>
+                            handleResizeStart(e, element.id, "width")
+                          }
+                          title="Resize width"
+                        />
+                        <div
+                          className="absolute -bottom-2 left-1/2 w-4 h-2 bg-blue-500 cursor-ns-resize z-20 rounded-sm transform -translate-x-1/2"
+                          onMouseDown={(e) =>
+                            handleResizeStart(e, element.id, "height")
+                          }
+                          title="Resize height"
+                        />
+                      </>
+                    )}
                   </div>
-                )}
+                ))}
 
-                {selectedElement === element.id && (
-                  <>
-                    {/* Selection Label */}
-                    <div className="absolute -top-8 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
-                      Static Text (Double-click to edit)
+                {/* Dynamic Fields */}
+                {dynamicFields.map((field) => (
+                  <div
+                    key={field.id}
+                    className={`absolute select-none border-2 transition-all ${
+                      selectedElement === field.id
+                        ? "border-green-500 shadow-lg z-10"
+                        : "border-dashed border-gray-400 hover:border-green-400"
+                    } hover:shadow-md`}
+                    style={{
+                      left: field.position.x,
+                      top: field.position.y,
+                      width: field.size.width,
+                      height: field.size.height,
+                      backgroundColor:
+                        selectedElement === field.id
+                          ? "rgba(34, 197, 94, 0.2)"
+                          : "rgba(34, 197, 94, 0.1)",
+                      cursor:
+                        isDragging && draggedElementId === field.id
+                          ? "grabbing"
+                          : "grab",
+                      overflow: "hidden",
+                      minHeight: "30px",
+                      minWidth: "100px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      padding: "4px",
+                    }}
+                    onClick={(e) => handleElementClick(field.id, e)}
+                    onMouseDown={(e) => handleElementMouseDown(e, field.id)}
+                  >
+                    <div className="text-green-700 font-medium text-xs truncate leading-tight">
+                      {field.label}
                     </div>
-                    
-                    {/* Resize Handles */}
-                    <div
-                      className="absolute -bottom-2 -right-2 w-4 h-4 bg-blue-500 cursor-nw-resize z-20 rounded-sm"
-                      onMouseDown={(e) => handleResizeStart(e, element.id, 'both')}
-                      title="Resize"
-                    />
-                    <div
-                      className="absolute top-1/2 -right-2 w-2 h-4 bg-blue-500 cursor-ew-resize z-20 rounded-sm transform -translate-y-1/2"
-                      onMouseDown={(e) => handleResizeStart(e, element.id, 'width')}
-                      title="Resize width"
-                    />
-                    <div
-                      className="absolute -bottom-2 left-1/2 w-4 h-2 bg-blue-500 cursor-ns-resize z-20 rounded-sm transform -translate-x-1/2"
-                      onMouseDown={(e) => handleResizeStart(e, element.id, 'height')}
-                      title="Resize height"
-                    />
-                  </>
-                )}
-              </div>
-            ))}
-
-            {/* Dynamic Fields */}
-            {dynamicFields.map((field) => (
-              <div
-                key={field.id}
-                className={`absolute select-none border-2 transition-all ${
-                  selectedElement === field.id
-                    ? "border-green-500 shadow-lg z-10"
-                    : "border-dashed border-gray-400 hover:border-green-400"
-                } hover:shadow-md`}
-                style={{
-                  left: field.position.x,
-                  top: field.position.y,
-                  width: field.size.width,
-                  height: field.size.height,
-                  backgroundColor:
-                    selectedElement === field.id
-                      ? "rgba(34, 197, 94, 0.2)"
-                      : "rgba(34, 197, 94, 0.1)",
-                  cursor: isDragging && draggedElementId === field.id ? 'grabbing' : 'grab',
-                  overflow: 'hidden',
-                  minHeight: '30px',
-                  minWidth: '100px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  padding: '4px'
-                }}
-                onClick={(e) => handleElementClick(field.id, e)}
-                onMouseDown={(e) => handleElementMouseDown(e, field.id)}
-              >
-                <div className="text-green-700 font-medium text-xs truncate leading-tight">
-                  {field.label}
-                </div>
-                <div className="text-green-600 text-xs truncate leading-tight">
-                  {field.dataMapping
-                    ? `📊 ${field.dataMapping}`
-                    : "⚠️ No data mapping"}
-                </div>
-                <div className="text-green-500 text-xs truncate leading-tight">
-                  {`{{${field.fieldName}}}`}
-                </div>
-
-                {selectedElement === field.id && (
-                  <>
-                    {/* Selection Label */}
-                    <div className="absolute -top-8 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
-                      Dynamic Field (Configure mapping →)
+                    <div className="text-green-600 text-xs truncate leading-tight">
+                      {field.dataMapping
+                        ? `📊 ${field.dataMapping}`
+                        : "⚠️ No data mapping"}
                     </div>
-                    
-                    {/* Resize Handles */}
-                    <div
-                      className="absolute -bottom-2 -right-2 w-4 h-4 bg-green-500 cursor-nw-resize z-20 rounded-sm"
-                      onMouseDown={(e) => handleResizeStart(e, field.id, 'both')}
-                      title="Resize"
-                    />
-                    <div
-                      className="absolute top-1/2 -right-2 w-2 h-4 bg-green-500 cursor-ew-resize z-20 rounded-sm transform -translate-y-1/2"
-                      onMouseDown={(e) => handleResizeStart(e, field.id, 'width')}
-                      title="Resize width"
-                    />
-                    <div
-                      className="absolute -bottom-2 left-1/2 w-4 h-2 bg-green-500 cursor-ns-resize z-20 rounded-sm transform -translate-x-1/2"
-                      onMouseDown={(e) => handleResizeStart(e, field.id, 'height')}
-                      title="Resize height"
-                    />
-                  </>
-                )}
+                    <div className="text-green-500 text-xs truncate leading-tight">
+                      {`{{${field.fieldName}}}`}
+                    </div>
 
-                {!field.dataMapping && (
-                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center z-20">
-                    !
+                    {selectedElement === field.id && (
+                      <>
+                        {/* Selection Label */}
+                        <div className="absolute -top-8 left-0 bg-green-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20">
+                          Dynamic Field (Configure mapping →)
+                        </div>
+
+                        {/* Resize Handles */}
+                        <div
+                          className="absolute -bottom-2 -right-2 w-4 h-4 bg-green-500 cursor-nw-resize z-20 rounded-sm"
+                          onMouseDown={(e) =>
+                            handleResizeStart(e, field.id, "both")
+                          }
+                          title="Resize"
+                        />
+                        <div
+                          className="absolute top-1/2 -right-2 w-2 h-4 bg-green-500 cursor-ew-resize z-20 rounded-sm transform -translate-y-1/2"
+                          onMouseDown={(e) =>
+                            handleResizeStart(e, field.id, "width")
+                          }
+                          title="Resize width"
+                        />
+                        <div
+                          className="absolute -bottom-2 left-1/2 w-4 h-2 bg-green-500 cursor-ns-resize z-20 rounded-sm transform -translate-x-1/2"
+                          onMouseDown={(e) =>
+                            handleResizeStart(e, field.id, "height")
+                          }
+                          title="Resize height"
+                        />
+                      </>
+                    )}
+
+                    {!field.dataMapping && (
+                      <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-500 text-white text-xs rounded-full flex items-center justify-center z-20">
+                        !
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Right Sidebar - Properties */}
-      {selectedElement && (
-        <div className="w-80 bg-gray-50 border-l border-gray-200 p-4 overflow-y-auto">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Properties</h3>
-            <button
-              onClick={() => deleteElement(selectedElement)}
-              className="text-red-600 hover:text-red-800"
-            >
-              <FaTrash />
-            </button>
-          </div>
+        {/* Right Sidebar - Properties */}
+        {selectedElement && (
+          <div className="w-80 bg-gray-50 border-l border-gray-200 p-4 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Properties
+              </h3>
+              <button
+                onClick={() => deleteElement(selectedElement)}
+                className="text-red-600 hover:text-red-800"
+              >
+                <FaTrash />
+              </button>
+            </div>
 
-          {(() => {
-            const staticElement = staticElements.find(
-              (el) => el.id === selectedElement
-            );
-            const dynamicField = dynamicFields.find(
-              (field) => field.id === selectedElement
-            );
+            {(() => {
+              const staticElement = staticElements.find(
+                (el) => el.id === selectedElement
+              );
+              const dynamicField = dynamicFields.find(
+                (field) => field.id === selectedElement
+              );
 
-            if (staticElement) {
-              return (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
-                    <h4 className="font-medium text-blue-800 mb-2">
-                      📄 Static Text Element
-                    </h4>
-                    <p className="text-sm text-blue-600">
-                      This is permanent content that will always appear in
-                      reports.
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Content
-                    </label>
-                    <textarea
-                      value={staticElement.content}
-                      onChange={(e) =>
-                        updateStaticElement(selectedElement, {
-                          content: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Width (px)
-                      </label>
-                      <input
-                        type="number"
-                        value={staticElement.size.width}
-                        onChange={(e) =>
-                          updateStaticElement(selectedElement, {
-                            size: {
-                              ...staticElement.size,
-                              width: Math.max(50, parseInt(e.target.value) || 50),
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min="50"
-                        max="800"
-                      />
+              if (staticElement) {
+                return (
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
+                      <h4 className="font-medium text-blue-800 mb-2">
+                        📄 Static Text Element
+                      </h4>
+                      <p className="text-sm text-blue-600">
+                        This is permanent content that will always appear in
+                        reports.
+                      </p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Height (px)
+                        Content
                       </label>
-                      <input
-                        type="number"
-                        value={staticElement.size.height}
+                      <textarea
+                        value={staticElement.content}
                         onChange={(e) =>
                           updateStaticElement(selectedElement, {
-                            size: {
-                              ...staticElement.size,
-                              height: Math.max(20, parseInt(e.target.value) || 20),
-                            },
+                            content: e.target.value,
                           })
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min="20"
-                        max="600"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Font Size
-                      </label>
-                      <input
-                        type="number"
-                        value={staticElement.style.fontSize || 14}
-                        onChange={(e) =>
-                          updateStaticElement(selectedElement, {
-                            style: {
-                              ...staticElement.style,
-                              fontSize: parseInt(e.target.value),
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        min="8"
-                        max="72"
+                        rows={3}
                       />
                     </div>
 
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Width (px)
+                        </label>
+                        <input
+                          type="number"
+                          value={staticElement.size.width}
+                          onChange={(e) =>
+                            updateStaticElement(selectedElement, {
+                              size: {
+                                ...staticElement.size,
+                                width: Math.max(
+                                  50,
+                                  parseInt(e.target.value) || 50
+                                ),
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          min="50"
+                          max="800"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Height (px)
+                        </label>
+                        <input
+                          type="number"
+                          value={staticElement.size.height}
+                          onChange={(e) =>
+                            updateStaticElement(selectedElement, {
+                              size: {
+                                ...staticElement.size,
+                                height: Math.max(
+                                  20,
+                                  parseInt(e.target.value) || 20
+                                ),
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          min="20"
+                          max="600"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Font Size
+                        </label>
+                        <input
+                          type="number"
+                          value={staticElement.style.fontSize || 14}
+                          onChange={(e) =>
+                            updateStaticElement(selectedElement, {
+                              style: {
+                                ...staticElement.style,
+                                fontSize: parseInt(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          min="8"
+                          max="72"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Font Weight
+                        </label>
+                        <select
+                          value={staticElement.style.fontWeight || "normal"}
+                          onChange={(e) =>
+                            updateStaticElement(selectedElement, {
+                              style: {
+                                ...staticElement.style,
+                                fontWeight: e.target.value as any,
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="normal">Normal</option>
+                          <option value="bold">Bold</option>
+                        </select>
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Font Weight
+                        Text Alignment
                       </label>
                       <select
-                        value={staticElement.style.fontWeight || "normal"}
+                        value={staticElement.style.textAlign || "left"}
                         onChange={(e) =>
                           updateStaticElement(selectedElement, {
                             style: {
                               ...staticElement.style,
-                              fontWeight: e.target.value as any,
+                              textAlign: e.target.value as any,
                             },
                           })
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="normal">Normal</option>
-                        <option value="bold">Bold</option>
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
                       </select>
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Text Alignment
-                    </label>
-                    <select
-                      value={staticElement.style.textAlign || "left"}
-                      onChange={(e) =>
-                        updateStaticElement(selectedElement, {
-                          style: {
-                            ...staticElement.style,
-                            textAlign: e.target.value as any,
-                          },
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="left">Left</option>
-                      <option value="center">Center</option>
-                      <option value="right">Right</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Text Color
-                    </label>
-                    <input
-                      type="color"
-                      value={staticElement.style.color || "#333333"}
-                      onChange={(e) =>
-                        updateStaticElement(selectedElement, {
-                          style: {
-                            ...staticElement.style,
-                            color: e.target.value,
-                          },
-                        })
-                      }
-                      className="w-full h-10 border border-gray-300 rounded-md"
-                    />
-                  </div>
-                </div>
-              );
-            }
-
-            if (dynamicField) {
-              return (
-                <div className="space-y-4">
-                  <div className="bg-green-50 p-3 rounded-md border border-green-200">
-                    <h4 className="font-medium text-green-800 mb-2">
-                      📊 Dynamic Field
-                    </h4>
-                    <p className="text-sm text-green-600">
-                      This field will be filled with data when generating
-                      reports.
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Field Label
-                    </label>
-                    <input
-                      type="text"
-                      value={dynamicField.label}
-                      onChange={(e) =>
-                        updateDynamicField(selectedElement, {
-                          label: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Field Type
-                    </label>
-                    <select
-                      value={dynamicField.fieldType}
-                      onChange={(e) =>
-                        updateDynamicField(selectedElement, {
-                          fieldType: e.target.value as any,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="text">Text</option>
-                      <option value="number">Number</option>
-                      <option value="date">Date</option>
-                      <option value="textarea">Text Area</option>
-                      <option value="select">Dropdown</option>
-                      <option value="checkbox">Checkbox</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Data Mapping <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={dynamicField.dataMapping || ""}
-                      onChange={(e) => {
-                        updateDynamicField(selectedElement, {
-                          dataMapping: e.target.value,
-                        });
-                        if (e.target.value) {
-                          showNotificationMessage(
-                            "Data mapping configured successfully!",
-                            "success"
-                          );
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Text Color
+                      </label>
+                      <input
+                        type="color"
+                        value={staticElement.style.color || "#333333"}
+                        onChange={(e) =>
+                          updateStaticElement(selectedElement, {
+                            style: {
+                              ...staticElement.style,
+                              color: e.target.value,
+                            },
+                          })
                         }
-                      }}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                        dynamicField.dataMapping
-                          ? "border-green-300 focus:ring-green-500"
-                          : "border-red-300 focus:ring-red-500"
-                      }`}
-                    >
-                      <option value="">Select data source...</option>
-                      {dataMappings.map((mapping) => (
-                        <option key={mapping.value} value={mapping.value}>
-                          {mapping.label}
-                        </option>
-                      ))}
-                    </select>
-                    {!dynamicField.dataMapping && (
-                      <p className="text-red-500 text-xs mt-1">
-                        ⚠️ Data mapping is required
+                        className="w-full h-10 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+                );
+              }
+
+              if (dynamicField) {
+                return (
+                  <div className="space-y-4">
+                    <div className="bg-green-50 p-3 rounded-md border border-green-200">
+                      <h4 className="font-medium text-green-800 mb-2">
+                        📊 Dynamic Field
+                      </h4>
+                      <p className="text-sm text-green-600">
+                        This field will be filled with data when generating
+                        reports.
                       </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Field Label
+                      </label>
+                      <input
+                        type="text"
+                        value={dynamicField.label}
+                        onChange={(e) =>
+                          updateDynamicField(selectedElement, {
+                            label: e.target.value,
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Field Type
+                      </label>
+                      <select
+                        value={dynamicField.fieldType}
+                        onChange={(e) =>
+                          updateDynamicField(selectedElement, {
+                            fieldType: e.target.value as any,
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      >
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="date">Date</option>
+                        <option value="textarea">Text Area</option>
+                        <option value="select">Dropdown</option>
+                        <option value="checkbox">Checkbox</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Data Mapping <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={dynamicField.dataMapping || ""}
+                        onChange={(e) => {
+                          updateDynamicField(selectedElement, {
+                            dataMapping: e.target.value,
+                          });
+                          if (e.target.value) {
+                            showNotificationMessage(
+                              "Data mapping configured successfully!",
+                              "success"
+                            );
+                          }
+                        }}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                          dynamicField.dataMapping
+                            ? "border-green-300 focus:ring-green-500"
+                            : "border-red-300 focus:ring-red-500"
+                        }`}
+                      >
+                        <option value="">Select data source...</option>
+                        {dataMappings.map((mapping) => (
+                          <option key={mapping.value} value={mapping.value}>
+                            {mapping.label}
+                          </option>
+                        ))}
+                      </select>
+                      {!dynamicField.dataMapping && (
+                        <p className="text-red-500 text-xs mt-1">
+                          ⚠️ Data mapping is required
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Field Name (Backend)
+                      </label>
+                      <input
+                        type="text"
+                        value={dynamicField.fieldName}
+                        onChange={(e) =>
+                          updateDynamicField(selectedElement, {
+                            fieldName: e.target.value,
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="field_name"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={dynamicField.required}
+                          onChange={(e) =>
+                            updateDynamicField(selectedElement, {
+                              required: e.target.checked,
+                            })
+                          }
+                          className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          Required Field
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Width (px)
+                        </label>
+                        <input
+                          type="number"
+                          value={dynamicField.size.width}
+                          onChange={(e) =>
+                            updateDynamicField(selectedElement, {
+                              size: {
+                                ...dynamicField.size,
+                                width: Math.max(
+                                  100,
+                                  parseInt(e.target.value) || 100
+                                ),
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                          min="100"
+                          max="800"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Height (px)
+                        </label>
+                        <input
+                          type="number"
+                          value={dynamicField.size.height}
+                          onChange={(e) =>
+                            updateDynamicField(selectedElement, {
+                              size: {
+                                ...dynamicField.size,
+                                height: Math.max(
+                                  30,
+                                  parseInt(e.target.value) || 30
+                                ),
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                          min="30"
+                          max="600"
+                        />
+                      </div>
+                    </div>
+
+                    {dynamicField.fieldType === "select" && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Options (one per line)
+                        </label>
+                        <textarea
+                          value={dynamicField.options?.join("\n") || ""}
+                          onChange={(e) =>
+                            updateDynamicField(selectedElement, {
+                              options: e.target.value
+                                .split("\n")
+                                .filter((opt) => opt.trim()),
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                          rows={4}
+                          placeholder="Option 1&#10;Option 2&#10;Option 3"
+                        />
+                      </div>
                     )}
                   </div>
+                );
+              }
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Field Name (Backend)
-                    </label>
-                    <input
-                      type="text"
-                      value={dynamicField.fieldName}
-                      onChange={(e) =>
-                        updateDynamicField(selectedElement, {
-                          fieldName: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="field_name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={dynamicField.required}
-                        onChange={(e) =>
-                          updateDynamicField(selectedElement, {
-                            required: e.target.checked,
-                          })
-                        }
-                        className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        Required Field
-                      </span>
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Width (px)
-                      </label>
-                      <input
-                        type="number"
-                        value={dynamicField.size.width}
-                        onChange={(e) =>
-                          updateDynamicField(selectedElement, {
-                            size: {
-                              ...dynamicField.size,
-                              width: Math.max(100, parseInt(e.target.value) || 100),
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        min="100"
-                        max="800"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Height (px)
-                      </label>
-                      <input
-                        type="number"
-                        value={dynamicField.size.height}
-                        onChange={(e) =>
-                          updateDynamicField(selectedElement, {
-                            size: {
-                              ...dynamicField.size,
-                              height: Math.max(30, parseInt(e.target.value) || 30),
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        min="30"
-                        max="600"
-                      />
-                    </div>
-                  </div>
-
-                  {dynamicField.fieldType === "select" && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Options (one per line)
-                      </label>
-                      <textarea
-                        value={dynamicField.options?.join("\n") || ""}
-                        onChange={(e) =>
-                          updateDynamicField(selectedElement, {
-                            options: e.target.value
-                              .split("\n")
-                              .filter((opt) => opt.trim()),
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        rows={4}
-                        placeholder="Option 1&#10;Option 2&#10;Option 3"
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            return null;
-          })()}
-        </div>
-      )}
-    </div>
+              return null;
+            })()}
+          </div>
+        )}
+      </div>
     </>
   );
 };

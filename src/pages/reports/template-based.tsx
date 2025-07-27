@@ -57,8 +57,8 @@ const TemplateBasedReportPage: React.FC = () => {
   };
 
   const handleReportGenerated = (reportId: number) => {
-    // Navigate to the generated report or show success message
-    console.log("Report generated with ID:", reportId);
+    // Navigate to the generated report
+    router.push(`/reports/${reportId}`);
   };
 
   if (selectedTemplateId) {

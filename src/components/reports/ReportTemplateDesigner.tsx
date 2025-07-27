@@ -156,13 +156,83 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
 
   // Save the template
   const handleSave = () => {
-    const template = {
-      reportName,
-      reportTemplate: {
-        paperSize,
-        fields,
-      },
+    // Generate HTML content from the current field layout
+    const generateHTMLContent = () => {
+      // Use actual pixel dimensions for the template
+      const actualWidth = paperDimensions.width;
+      const actualHeight = paperDimensions.height;
+
+      // Create the main container with exact dimensions
+      let htmlContent = `<div style="width: ${actualWidth}px; height: ${actualHeight}px; position: relative; background: white; font-family: Arial, sans-serif; overflow: hidden;">`;
+
+      fields.forEach((field) => {
+        const fieldStyle = `position: absolute; left: ${field.x}px; top: ${
+          field.y
+        }px; font-size: ${field.fontSize}px; font-weight: ${
+          field.bold ? "bold" : "normal"
+        }; line-height: 1.2; margin: 0; padding: 0;`;
+
+        if (field.type === "heading") {
+          htmlContent += `<h3 style="${fieldStyle} margin: 0; padding: 0;">${field.label}</h3>`;
+        } else {
+          const fieldName = field.label.replace(/\s+/g, "").toLowerCase();
+          const placeholder = `{{${fieldName}}}`;
+
+          if (field.showLabel) {
+            htmlContent += `<div style="${fieldStyle}"><span style="color: #666; margin-right: 5px;">${field.label}:</span><span>${placeholder}</span></div>`;
+          } else {
+            htmlContent += `<div style="${fieldStyle}">${placeholder}</div>`;
+          }
+        }
+      });
+
+      htmlContent += "</div>";
+      return htmlContent;
     };
+
+    // Prepare static content with the generated HTML
+    const staticContent = {
+      content: generateHTMLContent(),
+      paperSize: paperSize,
+      dimensions: paperDimensions,
+    };
+
+    // Prepare dynamic fields data
+    const dynamicFields = {
+      fields: fields
+        .filter((field) => field.type !== "heading")
+        .map((field) => ({
+          fieldName: field.label.replace(/\s+/g, "").toLowerCase(),
+          label: field.label,
+          type: field.type,
+          required: false,
+          placeholder: field.label,
+        })),
+    };
+
+    // Prepare layout configuration
+    const layoutConfig = {
+      paperSize: paperSize,
+      fieldPositions: fields.map((field) => ({
+        id: field.id,
+        x: field.x,
+        y: field.y,
+        fontSize: field.fontSize,
+        bold: field.bold,
+        showLabel: field.showLabel,
+      })),
+    };
+
+    const template = {
+      templateName: reportName,
+      description: `Template created with ${fields.length} fields`,
+      category: "GENERAL", // Default category
+      staticContent: staticContent,
+      dynamicFields: dynamicFields,
+      layoutConfig: layoutConfig,
+    };
+
+    console.log("Generated template data:", template);
     onSave(template);
   };
 
