@@ -55,7 +55,8 @@ const NewReportPage: React.FC = () => {
 
   // Create report mutation
   const createReportMutation = useMutation(
-    (data: any) => reportAPI.createReport(data),
+    ({ visitId, reportData }: { visitId: number; reportData: any }) =>
+      reportAPI.createReport(visitId, reportData),
     {
       onSuccess: (data) => {
         setSuccess("Report created successfully!");
@@ -89,12 +90,14 @@ const NewReportPage: React.FC = () => {
     }
 
     const createReportRequest = {
-      visitId: parsedVisitId,
       reportTypeId: selectedReportType.reportTypeId,
       reportData: reportData,
     };
 
-    await createReportMutation.mutateAsync(createReportRequest);
+    await createReportMutation.mutateAsync({
+      visitId: parsedVisitId,
+      reportData: createReportRequest,
+    });
   };
 
   // Loading state

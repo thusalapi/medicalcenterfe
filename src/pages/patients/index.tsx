@@ -1,427 +1,335 @@
 import React, { useState } from "react";
 import { useQuery } from "react-query";
+import { useRouter } from "next/router";
 import Link from "next/link";
-import { patientAPI } from "../../utils/api";
 import Head from "next/head";
+import { patientAPI } from "../../utils/api";
 import { Patient } from "../../types";
+import {
+  FaSearch,
+  FaPlus,
+  FaUser,
+  FaPhone,
+  FaEye,
+  FaEdit,
+  FaSpinner,
+  FaExclamationTriangle,
+  FaUserFriends,
+} from "react-icons/fa";
 
-export default function PatientsPage() {
+const PatientsPage: React.FC = () => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const patientsPerPage = 10;
+  const [searchQuery, setSearchQuery] = useState("");
+  const limit = 10;
 
-  // In a real app, we would have a backend endpoint to search patients
-  // This is a placeholder implementation using local filtering
+  // Fetch patients with search and pagination
   const {
     data: patients,
     isLoading,
     error,
-  } = useQuery<Patient[]>("allPatients", async () => {
-    // This would be replaced with an appropriate API call in a real implementation
-    // For example: patientAPI.getAllPatients()
-
-    // Mock data for demonstration
-    return [
-      {
-        patientId: 1,
-        name: "John Smith",
-        phoneNumber: "0771234567",
-        otherDetails: { age: 45, gender: "Male" },
+    refetch,
+  } = useQuery(
+    ["patients", searchQuery, currentPage],
+    () => patientAPI.getAllPatients(searchQuery, currentPage, limit),
+    {
+      keepPreviousData: true,
+      onError: (err) => {
+        console.error("Failed to fetch patients:", err);
       },
-      {
-        patientId: 2,
-        name: "Mary Johnson",
-        phoneNumber: "0771234568",
-        otherDetails: { age: 32, gender: "Female" },
-      },
-      {
-        patientId: 3,
-        name: "David Brown",
-        phoneNumber: "0771234569",
-        otherDetails: { age: 28, gender: "Male" },
-      },
-      {
-        patientId: 4,
-        name: "Sarah Wilson",
-        phoneNumber: "0771234570",
-        otherDetails: { age: 54, gender: "Female" },
-      },
-      {
-        patientId: 5,
-        name: "Michael Lee",
-        phoneNumber: "0771234571",
-        otherDetails: { age: 41, gender: "Male" },
-      },
-      {
-        patientId: 6,
-        name: "Jennifer Garcia",
-        phoneNumber: "0771234572",
-        otherDetails: { age: 36, gender: "Female" },
-      },
-      {
-        patientId: 7,
-        name: "Robert Martinez",
-        phoneNumber: "0771234573",
-        otherDetails: { age: 63, gender: "Male" },
-      },
-      {
-        patientId: 8,
-        name: "Elizabeth Taylor",
-        phoneNumber: "0771234574",
-        otherDetails: { age: 29, gender: "Female" },
-      },
-      {
-        patientId: 9,
-        name: "William Anderson",
-        phoneNumber: "0771234575",
-        otherDetails: { age: 47, gender: "Male" },
-      },
-      {
-        patientId: 10,
-        name: "Linda Thomas",
-        phoneNumber: "0771234576",
-        otherDetails: { age: 52, gender: "Female" },
-      },
-      {
-        patientId: 11,
-        name: "Richard Jackson",
-        phoneNumber: "0771234577",
-        otherDetails: { age: 38, gender: "Male" },
-      },
-      {
-        patientId: 12,
-        name: "Patricia White",
-        phoneNumber: "0771234578",
-        otherDetails: { age: 44, gender: "Female" },
-      },
-    ];
-  });
-
-  // Filter patients based on search term
-  const filteredPatients =
-    patients?.filter(
-      (patient) =>
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.phoneNumber.includes(searchTerm)
-    ) || [];
-
-  // Calculate pagination
-  const indexOfLastPatient = currentPage * patientsPerPage;
-  const indexOfFirstPatient = indexOfLastPatient - patientsPerPage;
-  const currentPatients = filteredPatients.slice(
-    indexOfFirstPatient,
-    indexOfLastPatient
+    }
   );
-  const totalPages = Math.ceil(filteredPatients.length / patientsPerPage);
 
-  // Handle pagination
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  // Handle search
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchQuery(searchTerm);
+    setCurrentPage(1);
+  };
+
+  // Handle clear search
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setSearchQuery("");
+    setCurrentPage(1);
+  };
+
+  // Navigate to patient details
+  const handleViewPatient = (patientId: number) => {
+    router.push(`/patients/${patientId}`);
+  };
+
+  // Navigate to edit patient
+  const handleEditPatient = (patientId: number) => {
+    router.push(`/patients/${patientId}?edit=true`);
+  };
 
   return (
     <>
       <Head>
         <title>Patients | Medical Center Management System</title>
+        <meta name="description" content="View and manage patient records" />
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Patient Registry</h1>
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+          <div className="mb-4 sm:mb-0">
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+              <FaUserFriends className="mr-3 text-blue-600" />
+              Patients
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Manage patient records and information
+            </p>
+          </div>
           <Link
             href="/patients/new"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            New Patient
+            <FaPlus className="mr-2 h-4 w-4" />
+            Add New Patient
           </Link>
         </div>
 
-        {/* Search */}
+        {/* Search Bar */}
         <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <div className="max-w-md mx-auto">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+          <form
+            onSubmit={handleSearch}
+            className="flex flex-col sm:flex-row gap-4"
+          >
+            <div className="flex-grow">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaSearch className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search patients by name or phone number..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
-              <input
-                type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Search by name or phone number..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1); // Reset to first page when searching
-                }}
-              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <FaSpinner className="animate-spin h-4 w-4 mr-2" />
+                ) : (
+                  <FaSearch className="h-4 w-4 mr-2" />
+                )}
+                Search
+              </button>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6">
+            <div className="flex items-center">
+              <FaExclamationTriangle className="h-5 w-5 text-red-600 mr-2" />
+              <p className="text-red-800">
+                Failed to load patients. Please try again.
+              </p>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Patient List */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          {isLoading ? (
-            <div className="text-center py-10">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-              <p className="mt-3 text-gray-600">Loading patients...</p>
+        {/* Loading State */}
+        {isLoading && !patients && (
+          <div className="bg-white shadow rounded-lg p-8">
+            <div className="flex flex-col items-center justify-center py-12">
+              <FaSpinner className="animate-spin h-8 w-8 text-blue-600 mb-4" />
+              <p className="text-gray-600">Loading patients...</p>
             </div>
-          ) : error ? (
-            <div className="text-center py-10">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10 text-red-500 mx-auto mb-3"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <p className="text-lg text-red-500 font-medium">
-                Failed to load patients
-              </p>
-              <p className="text-gray-600 mt-1">Please try again later</p>
-            </div>
-          ) : filteredPatients.length === 0 ? (
-            <div className="text-center py-10">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10 text-gray-400 mx-auto mb-3"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                />
-              </svg>
-              <p className="text-lg font-medium">No patients found</p>
-              <p className="text-gray-600 mt-1">
-                Try adjusting your search or create a new patient
-              </p>
-              <Link
-                href="/patients/new"
-                className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-              >
-                Register New Patient
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        ID
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Patient Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Phone Number
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Details
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {currentPatients.map((patient) => (
-                      <tr key={patient.patientId} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {patient.patientId}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="font-medium text-gray-900">
-                            {patient.name}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {patient.phoneNumber}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {patient.otherDetails?.age && (
-                            <span>Age: {patient.otherDetails.age}</span>
-                          )}
-                          {patient.otherDetails?.gender && (
-                            <span className="ml-2">
-                              Gender: {patient.otherDetails.gender}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                          <Link
-                            href={`/patients/${patient.patientId}`}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            View
-                          </Link>
-                          <Link
-                            href={`/visits/new?patientId=${patient.patientId}`}
-                            className="text-green-600 hover:text-green-800"
-                          >
-                            New Visit
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          </div>
+        )}
+
+        {/* Patients List */}
+        {patients && (
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            {patients.length === 0 ? (
+              <div className="text-center py-12">
+                <FaUser className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {searchQuery ? "No patients found" : "No patients yet"}
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  {searchQuery
+                    ? `No patients match "${searchQuery}". Try a different search term.`
+                    : "Get started by registering your first patient."}
+                </p>
+                {!searchQuery && (
+                  <Link
+                    href="/patients/new"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    <FaPlus className="mr-2 h-4 w-4" />
+                    Add First Patient
+                  </Link>
+                )}
               </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                  <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Showing{" "}
-                        <span className="font-medium">
-                          {indexOfFirstPatient + 1}
-                        </span>{" "}
-                        to{" "}
-                        <span className="font-medium">
-                          {Math.min(
-                            indexOfLastPatient,
-                            filteredPatients.length
-                          )}
-                        </span>{" "}
-                        of{" "}
-                        <span className="font-medium">
-                          {filteredPatients.length}
-                        </span>{" "}
-                        patients
-                      </p>
+            ) : (
+              <>
+                {/* Table Header */}
+                <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="font-medium text-gray-700">
+                      Patient Info
                     </div>
-                    <div>
-                      <nav
-                        className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                        aria-label="Pagination"
-                      >
-                        <button
-                          onClick={() => paginate(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                            currentPage === 1
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "text-gray-500 hover:bg-gray-50"
-                          }`}
-                        >
-                          <span className="sr-only">Previous</span>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 19l-7-7 7-7"
-                            />
-                          </svg>
-                        </button>
-
-                        {Array.from({ length: totalPages }).map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => paginate(index + 1)}
-                            className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${
-                              currentPage === index + 1
-                                ? "bg-blue-50 border-blue-500 text-blue-600 z-10"
-                                : "bg-white text-gray-500 hover:bg-gray-50"
-                            }`}
-                          >
-                            {index + 1}
-                          </button>
-                        ))}
-
-                        <button
-                          onClick={() => paginate(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                          className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                            currentPage === totalPages
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "text-gray-500 hover:bg-gray-50"
-                          }`}
-                        >
-                          <span className="sr-only">Next</span>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
-                        </button>
-                      </nav>
+                    <div className="font-medium text-gray-700 hidden md:block">
+                      Phone Number
                     </div>
+                    <div className="font-medium text-gray-700 hidden md:block">
+                      Patient ID
+                    </div>
+                    <div className="font-medium text-gray-700">Actions</div>
                   </div>
                 </div>
-              )}
-            </>
-          )}
-        </div>
+
+                {/* Table Body */}
+                <div className="divide-y divide-gray-200">
+                  {patients.map((patient: Patient) => (
+                    <div
+                      key={patient.patientId}
+                      className="px-6 py-4 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                        {/* Patient Info */}
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <FaUser className="h-5 w-5 text-blue-600" />
+                            </div>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {patient.name}
+                            </p>
+                            <p className="text-sm text-gray-500 md:hidden">
+                              <FaPhone className="inline h-3 w-3 mr-1" />
+                              {patient.phoneNumber}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Phone Number - Hidden on mobile */}
+                        <div className="text-sm text-gray-900 hidden md:block">
+                          <FaPhone className="inline h-3 w-3 mr-2 text-gray-400" />
+                          {patient.phoneNumber}
+                        </div>
+
+                        {/* Patient ID - Hidden on mobile */}
+                        <div className="text-sm text-gray-500 hidden md:block">
+                          #{patient.patientId}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleViewPatient(patient.patientId)}
+                            className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <FaEye className="h-3 w-3 mr-1" />
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleEditPatient(patient.patientId)}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <FaEdit className="h-3 w-3 mr-1" />
+                            Edit
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {patients.length === limit && (
+                  <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 flex justify-between sm:hidden">
+                        <button
+                          onClick={() =>
+                            setCurrentPage(Math.max(1, currentPage - 1))
+                          }
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                          disabled={patients.length < limit}
+                          className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                      <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm text-gray-700">
+                            Showing page{" "}
+                            <span className="font-medium">{currentPage}</span>
+                          </p>
+                        </div>
+                        <div>
+                          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <button
+                              onClick={() =>
+                                setCurrentPage(Math.max(1, currentPage - 1))
+                              }
+                              disabled={currentPage === 1}
+                              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Previous
+                            </button>
+                            <button
+                              onClick={() => setCurrentPage(currentPage + 1)}
+                              disabled={patients.length < limit}
+                              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Next
+                            </button>
+                          </nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Search Results Info */}
+        {searchQuery && patients && patients.length > 0 && (
+          <div className="mt-4 text-sm text-gray-600">
+            Found {patients.length} patient{patients.length !== 1 ? "s" : ""}{" "}
+            matching "{searchQuery}"
+          </div>
+        )}
       </div>
     </>
   );
-}
+};
+
+export default PatientsPage;

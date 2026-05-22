@@ -6,6 +6,10 @@ interface StatCardProps {
   description?: string;
   icon: React.ReactNode;
   colorClass: string;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
 }
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -14,18 +18,45 @@ const StatCard: React.FC<StatCardProps> = ({
   description,
   icon,
   colorClass,
+  trend,
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow p-5">
+    <div className="card-medical p-6 hover:scale-105 transition-all duration-300 group">
       <div className="flex justify-between items-start">
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <p className="text-2xl font-bold mt-1">{value}</p>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-medical-gray-medium mb-1">
+            {title}
+          </p>
+          <p className="text-3xl font-bold text-medical-gray-dark mb-2 group-hover:text-medical-primary transition-colors duration-200">
+            {value}
+          </p>
           {description && (
-            <p className="text-xs text-gray-500 mt-2">{description}</p>
+            <p className="text-xs text-medical-gray-medium leading-relaxed">
+              {description}
+            </p>
+          )}
+          {trend && (
+            <div className="mt-3 flex items-center space-x-1">
+              <span
+                className={`text-xs font-medium px-2 py-1 rounded-full ${
+                  trend.isPositive
+                    ? "text-medical-secondary bg-green-50"
+                    : "text-medical-accent bg-red-50"
+                }`}
+              >
+                {trend.isPositive ? "↗" : "↘"} {Math.abs(trend.value)}%
+              </span>
+              <span className="text-xs text-medical-gray-medium">
+                vs last month
+              </span>
+            </div>
           )}
         </div>
-        <div className={`rounded-full p-2 ${colorClass}`}>{icon}</div>
+        <div
+          className={`rounded-xl p-3 ${colorClass} shadow-lg group-hover:scale-110 transition-all duration-200`}
+        >
+          <div className="text-white text-xl">{icon}</div>
+        </div>
       </div>
     </div>
   );

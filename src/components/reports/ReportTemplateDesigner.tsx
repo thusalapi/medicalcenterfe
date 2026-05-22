@@ -8,9 +8,11 @@ import {
   useSensors,
   DragEndEvent,
   DragStartEvent,
+  useDraggable,
 } from "@dnd-kit/core";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 import { ReportField, ReportType } from "../../types";
+import ChartField from "./ChartField";
 
 interface ReportTemplateDesignerProps {
   initialTemplate?: ReportType;
@@ -71,7 +73,13 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
       .substring(2, 9)}`;
     let newField: ReportField = {
       id,
-      type,
+      type: type as
+        | "text"
+        | "number"
+        | "date"
+        | "checkbox"
+        | "textarea"
+        | "heading",
       label: getDefaultLabelByType(type),
       x: 50,
       y: 50,
@@ -82,7 +90,6 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
 
     updateFields([...fields, newField]);
   };
-
   // Get default label based on field type
   const getDefaultLabelByType = (type: string): string => {
     switch (type) {
@@ -98,6 +105,10 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
         return "Text Area";
       case "heading":
         return "Report Heading";
+      case "pie-chart":
+        return "Pie Chart";
+      case "bar-chart":
+        return "Bar Chart";
       default:
         return "Field";
     }
@@ -145,13 +156,83 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
 
   // Save the template
   const handleSave = () => {
-    const template = {
-      reportName,
-      reportTemplate: {
-        paperSize,
-        fields,
-      },
+    // Generate HTML content from the current field layout
+    const generateHTMLContent = () => {
+      // Use actual pixel dimensions for the template
+      const actualWidth = paperDimensions.width;
+      const actualHeight = paperDimensions.height;
+
+      // Create the main container with exact dimensions
+      let htmlContent = `<div style="width: ${actualWidth}px; height: ${actualHeight}px; position: relative; background: white; font-family: Arial, sans-serif; overflow: hidden;">`;
+
+      fields.forEach((field) => {
+        const fieldStyle = `position: absolute; left: ${field.x}px; top: ${
+          field.y
+        }px; font-size: ${field.fontSize}px; font-weight: ${
+          field.bold ? "bold" : "normal"
+        }; line-height: 1.2; margin: 0; padding: 0;`;
+
+        if (field.type === "heading") {
+          htmlContent += `<h3 style="${fieldStyle} margin: 0; padding: 0;">${field.label}</h3>`;
+        } else {
+          const fieldName = field.label.replace(/\s+/g, "").toLowerCase();
+          const placeholder = `{{${fieldName}}}`;
+
+          if (field.showLabel) {
+            htmlContent += `<div style="${fieldStyle}"><span style="color: #666; margin-right: 5px;">${field.label}:</span><span>${placeholder}</span></div>`;
+          } else {
+            htmlContent += `<div style="${fieldStyle}">${placeholder}</div>`;
+          }
+        }
+      });
+
+      htmlContent += "</div>";
+      return htmlContent;
     };
+
+    // Prepare static content with the generated HTML
+    const staticContent = {
+      content: generateHTMLContent(),
+      paperSize: paperSize,
+      dimensions: paperDimensions,
+    };
+
+    // Prepare dynamic fields data
+    const dynamicFields = {
+      fields: fields
+        .filter((field) => field.type !== "heading")
+        .map((field) => ({
+          fieldName: field.label.replace(/\s+/g, "").toLowerCase(),
+          label: field.label,
+          type: field.type,
+          required: false,
+          placeholder: field.label,
+        })),
+    };
+
+    // Prepare layout configuration
+    const layoutConfig = {
+      paperSize: paperSize,
+      fieldPositions: fields.map((field) => ({
+        id: field.id,
+        x: field.x,
+        y: field.y,
+        fontSize: field.fontSize,
+        bold: field.bold,
+        showLabel: field.showLabel,
+      })),
+    };
+
+    const template = {
+      templateName: reportName,
+      description: `Template created with ${fields.length} fields`,
+      category: "GENERAL", // Default category
+      staticContent: staticContent,
+      dynamicFields: dynamicFields,
+      layoutConfig: layoutConfig,
+    };
+
+    console.log("Generated template data:", template);
     onSave(template);
   };
 
@@ -234,12 +315,24 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
                 onClick={() => createField("textarea")}
               >
                 Text Area
-              </button>
+              </button>{" "}
               <button
                 className="bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600"
                 onClick={() => createField("heading")}
               >
                 Heading
+              </button>
+              <button
+                className="bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600"
+                onClick={() => createField("pie-chart")}
+              >
+                Pie Chart
+              </button>
+              <button
+                className="bg-blue-500 text-white py-2 px-3 rounded hover:bg-blue-600"
+                onClick={() => createField("bar-chart")}
+              >
+                Bar Chart
               </button>
             </div>
           </div>
@@ -356,32 +449,13 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
                 transformOrigin: "top left",
               }}
             >
+              {" "}
               {fields.map((field) => (
-                <div
+                <DraggableField
                   key={field.id}
-                  id={field.id}
-                  className={`absolute cursor-grab border border-dashed ${
-                    activeId === field.id
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-300"
-                  } p-2 rounded`}
-                  style={{
-                    left: field.x,
-                    top: field.y,
-                    fontWeight: field.bold ? "bold" : "normal",
-                    fontSize: `${field.fontSize}px`,
-                  }}
-                >
-                  {field.showLabel && (
-                    <span className="text-gray-500">{field.label}: </span>
-                  )}
-                  {field.type === "text" && "[Text Input]"}
-                  {field.type === "number" && "[Number Input]"}
-                  {field.type === "date" && "[Date Input]"}
-                  {field.type === "checkbox" && "[Checkbox]"}
-                  {field.type === "textarea" && "[Text Area]"}
-                  {field.type === "heading" && field.label}
-                </div>
+                  field={field}
+                  isActive={activeId === field.id}
+                />
               ))}
             </div>
           </DndContext>
@@ -396,6 +470,51 @@ const ReportTemplateDesigner: React.FC<ReportTemplateDesignerProps> = ({
           Save Template
         </button>
       </div>
+    </div>
+  );
+};
+
+// Draggable Field Component
+interface DraggableFieldProps {
+  field: ReportField;
+  isActive: boolean;
+}
+
+const DraggableField: React.FC<DraggableFieldProps> = ({ field, isActive }) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: field.id,
+  });
+
+  const style: React.CSSProperties = {
+    position: "absolute",
+    left: field.x,
+    top: field.y,
+    fontWeight: field.bold ? "bold" : "normal",
+    fontSize: `${field.fontSize}px`,
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`absolute cursor-grab border border-dashed ${
+        isActive ? "border-blue-500 bg-blue-50" : "border-gray-300"
+      } p-2 rounded`}
+      {...listeners}
+      {...attributes}
+    >
+      {field.showLabel && (
+        <span className="text-gray-500">{field.label}: </span>
+      )}
+      {field.type === "text" && "[Text Input]"}
+      {field.type === "number" && "[Number Input]"}
+      {field.type === "date" && "[Date Input]"}
+      {field.type === "checkbox" && "[Checkbox]"}
+      {field.type === "textarea" && "[Text Area]"}
+      {field.type === "heading" && field.label}
     </div>
   );
 };

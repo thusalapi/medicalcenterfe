@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Report, ReportType } from "../../types";
+import ChartField from "./ChartField";
 
 interface ReportEditorProps {
   initialReport?: Report;
@@ -133,10 +134,15 @@ const ReportEditor: React.FC<ReportEditorProps> = ({
             disabled={readOnly}
           />
         );
-
       case "heading":
         // Headings don't have inputs
         return null;
+
+      case "pie-chart":
+        return <ChartField type="pie" />;
+
+      case "bar-chart":
+        return <ChartField type="bar" />;
 
       default:
         return (
