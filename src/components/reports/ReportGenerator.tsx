@@ -104,56 +104,72 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({
     try {
       const autoFilledValues: Record<string, any> = { ...fieldValues };
 
-      // Map database fields to form fields
       if (template.dynamicFields.fields) {
         template.dynamicFields.fields.forEach((field: any) => {
-          const dbMapping = field.dbMapping || field.fieldName;
+          // Template designer saves as "dataMapping"; legacy code used "dbMapping"
+          const mapping: string = field.dataMapping || field.dbMapping || "";
 
-          // Auto-fill from patient data
-          if (patientData && dbMapping.startsWith("patient_")) {
-            const patientField = dbMapping.replace("patient_", "");
-            switch (patientField) {
-              case "name":
+          if (patientData) {
+            switch (mapping) {
+              case "patient.name":
+              case "patient_name":
                 autoFilledValues[field.fieldName] = patientData.name || "";
                 break;
-              case "id":
-                autoFilledValues[field.fieldName] = patientData.patientId || "";
+              case "patient.phone":
+              case "patient_phone":
+                autoFilledValues[field.fieldName] = patientData.phoneNumber || "";
                 break;
-              case "age":
-                autoFilledValues[field.fieldName] = patientData.age || "";
-                break;
-              case "gender":
-                autoFilledValues[field.fieldName] = patientData.gender || "";
-                break;
-              case "phone":
+              case "patient.age":
+              case "patient_age":
                 autoFilledValues[field.fieldName] =
-                  patientData.phoneNumber || "";
+                  patientData.otherDetails?.age ?? "";
                 break;
-              case "address":
-                autoFilledValues[field.fieldName] = patientData.address || "";
+              case "patient.gender":
+              case "patient_gender":
+                autoFilledValues[field.fieldName] =
+                  patientData.otherDetails?.gender ?? "";
+                break;
+              case "patient.address":
+              case "patient_address":
+                autoFilledValues[field.fieldName] =
+                  patientData.otherDetails?.address ?? "";
+                break;
+              case "patient.email":
+              case "patient_email":
+                autoFilledValues[field.fieldName] =
+                  patientData.otherDetails?.email ?? "";
                 break;
             }
           }
 
-          // Auto-fill from visit data
-          if (visitData && dbMapping.startsWith("visit_")) {
-            const visitField = dbMapping.replace("visit_", "");
-            switch (visitField) {
-              case "date":
+          if (visitData) {
+            switch (mapping) {
+              case "visit.date":
+              case "visit_date":
+                autoFilledValues[field.fieldName] = visitData.visitDate
+                  ? new Date(visitData.visitDate).toLocaleDateString()
+                  : "";
+                break;
+              case "visit.doctor":
+              case "visit_doctor":
                 autoFilledValues[field.fieldName] =
-                  new Date(visitData.visitDate).toLocaleDateString() || "";
+                  (visitData as any).doctorName || "";
                 break;
-              case "doctor":
-                autoFilledValues[field.fieldName] = visitData.doctorName || "";
-                break;
-              case "notes":
-                autoFilledValues[field.fieldName] = visitData.notes || "";
+              case "visit.symptoms":
+              case "visit_symptoms":
+              case "visit.diagnosis":
+              case "visit_diagnosis":
+                autoFilledValues[field.fieldName] =
+                  (visitData as any).notes || "";
                 break;
             }
           }
 
-          // Auto-fill common system fields
-          if (dbMapping === "test_date" || dbMapping === "report_date") {
+          if (
+            mapping === "report.date" ||
+            mapping === "report_date" ||
+            mapping === "test_date"
+          ) {
             autoFilledValues[field.fieldName] = new Date().toLocaleDateString();
           }
         });

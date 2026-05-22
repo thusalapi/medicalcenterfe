@@ -77,6 +77,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   const [resizeDirection, setResizeDirection] = useState<
     "width" | "height" | "both" | null
   >(null);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [pageOrientation, setPageOrientation] = useState<
     "portrait" | "landscape"
   >("portrait");
@@ -85,6 +86,18 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   );
 
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  const getScale = () => (getCanvasDimensions().width > 1000 ? 0.8 : 1.0);
+
+  const getCanvasCoords = (e: React.MouseEvent | React.DragEvent) => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    const rect = canvasRef.current.getBoundingClientRect();
+    const scale = getScale();
+    return {
+      x: (e.clientX - rect.left) / scale,
+      y: (e.clientY - rect.top) / scale,
+    };
+  };
 
   // Available field types for dragging
   const availableFields = [
@@ -234,9 +247,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
 
     if (!draggedField || !canvasRef.current) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getCanvasCoords(e);
 
     const newField: DynamicField = {
       id: `field-${Date.now()}`,
@@ -247,10 +258,10 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
       } Field`,
       placeholder: `Enter ${draggedField}`,
       required: false,
-      position: { x: Math.max(0, x - 50), y: Math.max(0, y - 15) },
+      position: { x: Math.max(0, x), y: Math.max(0, y) },
       size: { width: 200, height: 30 },
       isDynamic: true,
-      dataMapping: "", // Will be filled by user
+      dataMapping: "",
     };
 
     setDynamicFields([...dynamicFields, newField]);
@@ -319,6 +330,15 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   const handleElementMouseDown = (e: React.MouseEvent, elementId: string) => {
     e.preventDefault();
     e.stopPropagation();
+
+    const { x, y } = getCanvasCoords(e);
+    const el =
+      staticElements.find((el) => el.id === elementId) ||
+      dynamicFields.find((f) => f.id === elementId);
+    if (el) {
+      setDragOffset({ x: x - el.position.x, y: y - el.position.y });
+    }
+
     setDraggedElementId(elementId);
     setIsDragging(true);
     setSelectedElement(elementId);
@@ -341,36 +361,32 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   const handleCanvasMouseMove = (e: React.MouseEvent) => {
     if (!canvasRef.current) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getCanvasCoords(e);
 
-    // Handle dragging
     if (isDragging && draggedElementId) {
       e.preventDefault();
+      const newX = Math.max(0, x - dragOffset.x);
+      const newY = Math.max(0, y - dragOffset.y);
 
-      // Update position for static elements
       const staticElement = staticElements.find(
         (el) => el.id === draggedElementId
       );
       if (staticElement) {
         updateStaticElement(draggedElementId, {
-          position: { x: Math.max(0, x - 50), y: Math.max(0, y - 15) },
+          position: { x: newX, y: newY },
         });
       }
 
-      // Update position for dynamic fields
       const dynamicField = dynamicFields.find(
         (field) => field.id === draggedElementId
       );
       if (dynamicField) {
         updateDynamicField(draggedElementId, {
-          position: { x: Math.max(0, x - 50), y: Math.max(0, y - 15) },
+          position: { x: newX, y: newY },
         });
       }
     }
 
-    // Handle resizing
     if (isResizing && resizeElement && resizeDirection) {
       e.preventDefault();
 
@@ -383,29 +399,25 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
 
       if (staticElement) {
         const currentPos = staticElement.position;
-        let newSize = { ...staticElement.size };
-
+        const newSize = { ...staticElement.size };
         if (resizeDirection === "width" || resizeDirection === "both") {
           newSize.width = Math.max(50, x - currentPos.x);
         }
         if (resizeDirection === "height" || resizeDirection === "both") {
           newSize.height = Math.max(20, y - currentPos.y);
         }
-
         updateStaticElement(resizeElement, { size: newSize });
       }
 
       if (dynamicField) {
         const currentPos = dynamicField.position;
-        let newSize = { ...dynamicField.size };
-
+        const newSize = { ...dynamicField.size };
         if (resizeDirection === "width" || resizeDirection === "both") {
           newSize.width = Math.max(50, x - currentPos.x);
         }
         if (resizeDirection === "height" || resizeDirection === "both") {
           newSize.height = Math.max(20, y - currentPos.y);
         }
-
         updateDynamicField(resizeElement, { size: newSize });
       }
     }
@@ -567,29 +579,22 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${templateName || "Medical Report"}</title>
 <style>
-body { 
-  font-family: Arial, sans-serif; 
-  margin: 0; 
-  padding: 20px; 
-  line-height: 1.4;
+* { box-sizing: border-box; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
-.template-container { 
-  position: relative; 
-  width: ${canvasDims.width}px; 
-  height: auto;
-  min-height: ${canvasDims.height}px;
-  margin: 0 auto;
+.template-container {
+  position: relative;
+  width: ${canvasDims.width}px;
+  height: ${canvasDims.height}px;
 }
 @page {
   size: ${pageSize} ${pageOrientation};
-  margin: 2cm;
-}
-@media print {
-  body { margin: 0; padding: 10px; }
-  .template-container { width: 100%; max-width: 100%; }
+  margin: 0;
 }
 </style>
 </head>
@@ -990,6 +995,7 @@ ${bodyContent}
                 onDragOver={(e) => e.preventDefault()}
                 onMouseMove={handleCanvasMouseMove}
                 onMouseUp={handleCanvasMouseUp}
+                onMouseLeave={handleCanvasMouseUp}
               >
                 {/* Static Elements */}
                 {staticElements.map((element) => (
