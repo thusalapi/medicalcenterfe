@@ -5,351 +5,176 @@ import Head from "next/head";
 import { visitAPI } from "../../utils/api";
 import { Visit } from "../../types";
 import {
-  FaSearch,
-  FaPlus,
-  FaCalendarAlt,
-  FaUser,
-  FaEye,
-  FaFileAlt,
-  FaDollarSign,
-  FaSpinner,
-  FaExclamationCircle,
-  FaUserFriends,
-  FaClock,
+  FaSearch, FaPlus, FaUser, FaFileAlt, FaDollarSign,
+  FaEye, FaChevronLeft, FaChevronRight, FaClock,
 } from "react-icons/fa";
 
 export default function VisitsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [dateFilter, setDateFilter] = useState("");
-  const visitsPerPage = 10;
+  const [page, setPage] = useState(1);
+  const perPage = 10;
 
-  // Debounce search term
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-      setCurrentPage(1); // Reset to first page when searching
-    }, 500);
-
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => { setDebouncedSearch(searchTerm); setPage(1); }, 300);
+    return () => clearTimeout(t);
   }, [searchTerm]);
 
-  // Fetch visits from backend
-  const {
-    data: visitsResponse,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery(
-    ["allVisits", debouncedSearchTerm, currentPage, dateFilter],
-    () =>
-      visitAPI.getAllVisits(
-        debouncedSearchTerm || undefined,
-        dateFilter || undefined,
-        undefined, // dateTo (we're using single date filter for now)
-        currentPage,
-        visitsPerPage
-      ),
-    {
-      keepPreviousData: true,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
+  const { data: response, isLoading, error } = useQuery(
+    ["allVisits", debouncedSearch, page, dateFilter],
+    () => visitAPI.getAllVisits(debouncedSearch || undefined, dateFilter || undefined, undefined, page, perPage),
+    { keepPreviousData: true, staleTime: 5 * 60 * 1000 }
   );
 
-  const visits = visitsResponse?.visits || [];
-  const totalVisits = visitsResponse?.total || 0;
-  const totalPages = Math.ceil(totalVisits / visitsPerPage);
-
-  // Handle pagination
-  const goToPage = (pageNumber: number) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
-  // Generate page numbers for pagination
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      const start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-      const end = Math.min(totalPages, start + maxVisible - 1);
-
-      for (let i = start; i <= end; i++) {
-        pageNumbers.push(i);
-      }
-    }
-
-    return pageNumbers;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const visits: Visit[] = response?.visits || response || [];
+  const total: number = response?.total ?? visits.length;
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
 
   return (
     <>
-      <Head>
-        <title>Visits | Medical Center Management System</title>
-      </Head>
+      <Head><title>Visits | Medical Center</title></Head>
 
-      <div className="space-y-6">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-medical-primary/10 via-medical-secondary/10 to-medical-primary/10 rounded-2xl p-6 border border-medical-primary/20">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="mb-4 lg:mb-0">
-              <h1 className="text-3xl font-bold font-medical text-gradient-medical mb-2">
-                Patient Visits
-              </h1>
-              <p className="text-medical-gray-medium">
-                Manage and view all patient visits
-              </p>
-              {totalVisits > 0 && (
-                <div className="flex items-center space-x-4 mt-2 text-sm">
-                  <div className="flex items-center space-x-2 text-medical-secondary">
-                    <FaUserFriends className="h-4 w-4" />
-                    <span>{totalVisits} total visits</span>
-                  </div>
-                </div>
-              )}
-            </div>
-            <Link
-              href="/visits/new"
-              className="btn-medical-primary flex items-center space-x-2"
+      <div className="space-y-5">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Visits</h1>
+            {total > 0 && <p className="text-sm text-gray-400 mt-0.5">{total} total</p>}
+          </div>
+          <Link
+            href="/visits/new"
+            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-green-700"
+          >
+            <FaPlus className="h-3.5 w-3.5" /> New Visit
+          </Link>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search by patient name or visit ID…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => { setDateFilter(e.target.value); setPage(1); }}
+            className="px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          {(debouncedSearch || dateFilter) && (
+            <button
+              onClick={() => { setSearchTerm(""); setDebouncedSearch(""); setDateFilter(""); setPage(1); }}
+              className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
             >
-              <FaPlus className="h-4 w-4" />
-              <span>New Visit</span>
-            </Link>
-          </div>
+              Clear
+            </button>
+          )}
         </div>
 
-        {/* Search and Filters */}
-        <div className="card-medical p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
-            <div className="relative flex-1 max-w-md">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-medical-gray-medium h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search by patient name or visit ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="input-medical pl-10 w-full"
-              />
-            </div>
-            <div className="flex space-x-4">
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="input-medical"
-                placeholder="Filter by date"
-              />
-              <button
-                onClick={() => refetch()}
-                className="btn-medical-outline flex items-center space-x-2"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <FaSpinner className="h-4 w-4 animate-spin" />
-                ) : (
-                  <FaSearch className="h-4 w-4" />
-                )}
-                <span>Refresh</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Visits Table */}
-        <div className="card-medical overflow-hidden">
+        {/* Table */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           {isLoading ? (
-            <div className="text-center py-12">
-              <FaSpinner className="h-12 w-12 text-medical-primary animate-spin mx-auto mb-4" />
-              <p className="text-medical-gray-medium">Loading visits...</p>
-            </div>
+            <div className="py-16 text-center text-gray-400 text-sm">Loading…</div>
           ) : error ? (
-            <div className="text-center py-12">
-              <FaExclamationCircle className="h-12 w-12 text-medical-accent mx-auto mb-4" />
-              <p className="text-medical-accent text-lg font-semibold mb-2">
-                Error loading visits
-              </p>
-              <p className="text-medical-gray-medium mb-4">
-                {(error as Error).message || "Something went wrong"}
-              </p>
-              <button onClick={() => refetch()} className="btn-medical-primary">
-                Try Again
-              </button>
-            </div>
+            <div className="py-16 text-center text-sm text-red-500">Failed to load visits.</div>
           ) : !visits.length ? (
-            <div className="text-center py-12">
-              <FaCalendarAlt className="h-16 w-16 text-medical-gray-medium/50 mx-auto mb-4" />
-              <p className="text-medical-gray-medium text-lg">
-                {searchTerm || dateFilter
-                  ? "No visits found"
-                  : "No visits recorded yet"}
+            <div className="py-16 text-center">
+              <p className="text-gray-400 text-sm">
+                {debouncedSearch || dateFilter ? "No visits match your filters." : "No visits yet."}
               </p>
-              <p className="text-medical-gray-medium text-sm mb-4">
-                {searchTerm || dateFilter
-                  ? "Try adjusting your search criteria"
-                  : "Start by creating your first visit"}
-              </p>
-              {!searchTerm && !dateFilter && (
-                <Link href="/visits/new" className="btn-medical-primary">
-                  Create First Visit
+              {!debouncedSearch && !dateFilter && (
+                <Link href="/visits/new" className="mt-2 inline-block text-sm text-blue-600 hover:underline">
+                  Create first visit
                 </Link>
               )}
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-medical-gray-light">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-medical-gray-dark uppercase tracking-wider">
-                        Visit ID
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-medical-gray-dark uppercase tracking-wider">
-                        Patient
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-medical-gray-dark uppercase tracking-wider">
-                        Date & Time
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-medical-gray-dark uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-4 text-right text-xs font-semibold text-medical-gray-dark uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {visits.map((visit) => (
-                      <tr
-                        key={visit.visitId}
-                        className="hover:bg-medical-gray-light/50 transition-colors duration-150"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-medical-primary">
-                            #{visit.visitId}
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead>
+                  <tr className="bg-gray-50 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <th className="px-5 py-3">Patient</th>
+                    <th className="px-5 py-3 hidden sm:table-cell">Date & Time</th>
+                    <th className="px-5 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {visits.map((visit) => (
+                    <tr key={visit.visitId} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                            <FaUser className="h-4 w-4 text-green-600" />
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <div className="h-10 w-10 rounded-full bg-medical-primary/10 flex items-center justify-center">
-                                <FaUser className="h-5 w-5 text-medical-primary" />
-                              </div>
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-medical-gray-dark">
-                                {visit.patientName}
-                              </div>
-                              <div className="text-sm text-medical-gray-medium">
-                                ID: {visit.patientId}
-                              </div>
-                            </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{visit.patientName}</p>
+                            <p className="text-xs text-gray-400 sm:hidden flex items-center gap-1 mt-0.5">
+                              <FaClock className="h-3 w-3" />
+                              {new Date(visit.visitDate).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+                            </p>
+                            <p className="text-xs text-gray-400">#{visit.visitId}</p>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <FaClock className="h-4 w-4 text-medical-gray-medium mr-2" />
-                            <div>
-                              <div className="text-sm font-medium text-medical-gray-dark">
-                                {new Date(visit.visitDate).toLocaleDateString()}
-                              </div>
-                              <div className="text-sm text-medical-gray-medium">
-                                {formatTime(visit.visitDate)}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-medical-secondary/10 text-medical-secondary">
-                            Active
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-3">
-                          <Link
-                            href={`/visits/${visit.visitId}`}
-                            className="text-medical-primary hover:text-medical-primary-dark font-medium transition-colors duration-150 inline-flex items-center space-x-1"
-                          >
-                            <FaEye className="h-4 w-4" />
-                            <span>View</span>
-                          </Link>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 hidden sm:table-cell">
+                        <span className="text-sm text-gray-600 flex items-center gap-1.5">
+                          <FaClock className="h-3.5 w-3.5 text-gray-400" />
+                          {new Date(visit.visitDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-3">
                           <Link
                             href={`/reports/new?visitId=${visit.visitId}`}
-                            className="text-medical-secondary hover:text-medical-secondary-dark font-medium transition-colors duration-150 inline-flex items-center space-x-1"
+                            className="text-xs text-green-600 hover:underline flex items-center gap-1 font-medium"
                           >
-                            <FaFileAlt className="h-4 w-4" />
-                            <span>Report</span>
+                            <FaFileAlt className="h-3.5 w-3.5" /> Report
                           </Link>
                           <Link
                             href={`/bills/new?visitId=${visit.visitId}`}
-                            className="text-medical-accent hover:text-medical-accent-dark font-medium transition-colors duration-150 inline-flex items-center space-x-1"
+                            className="text-xs text-amber-600 hover:underline flex items-center gap-1 font-medium"
                           >
-                            <FaDollarSign className="h-4 w-4" />
-                            <span>Bill</span>
+                            <FaDollarSign className="h-3.5 w-3.5" /> Bill
                           </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                          <Link
+                            href={`/visits/${visit.visitId}`}
+                            className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1"
+                          >
+                            <FaEye className="h-3.5 w-3.5" /> View
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="bg-medical-gray-light/30 px-6 py-4 border-t border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-medical-gray-medium">
-                      Showing {(currentPage - 1) * visitsPerPage + 1} to{" "}
-                      {Math.min(currentPage * visitsPerPage, totalVisits)} of{" "}
-                      {totalVisits} visits
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <button
-                        onClick={() => goToPage(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="px-3 py-2 rounded-md text-sm font-medium text-medical-gray-medium hover:text-medical-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
-                      >
-                        Previous
-                      </button>
-
-                      {getPageNumbers().map((pageNumber) => (
-                        <button
-                          key={pageNumber}
-                          onClick={() => goToPage(pageNumber)}
-                          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
-                            currentPage === pageNumber
-                              ? "bg-medical-primary text-white"
-                              : "text-medical-gray-medium hover:text-medical-primary"
-                          }`}
-                        >
-                          {pageNumber}
-                        </button>
-                      ))}
-
-                      <button
-                        onClick={() => goToPage(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-2 rounded-md text-sm font-medium text-medical-gray-medium hover:text-medical-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
-                      >
-                        Next
-                      </button>
-                    </div>
+                <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between bg-gray-50">
+                  <p className="text-xs text-gray-500">Page {page} of {totalPages}</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setPage(Math.max(1, page - 1))}
+                      disabled={page === 1}
+                      className="p-1.5 rounded border border-gray-200 text-gray-500 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <FaChevronLeft className="h-3 w-3" />
+                    </button>
+                    <button
+                      onClick={() => setPage(Math.min(totalPages, page + 1))}
+                      disabled={page === totalPages}
+                      className="p-1.5 rounded border border-gray-200 text-gray-500 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <FaChevronRight className="h-3 w-3" />
+                    </button>
                   </div>
                 </div>
               )}
