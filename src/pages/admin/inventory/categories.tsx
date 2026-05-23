@@ -45,15 +45,8 @@ const MedicineCategoriesPage: React.FC = () => {
 
   // Update category mutation
   const updateCategory = useMutation(
-    (categoryData: any) => {
-      return fetch(`/api/medicine-categories/${selectedCategory?.categoryId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(categoryData),
-      });
-    },
+    (categoryData: any) =>
+      medicineAPI.updateMedicineCategory(selectedCategory!.categoryId, categoryData),
     {
       onSuccess: () => {
         queryClient.invalidateQueries("medicineCategories");
@@ -71,11 +64,7 @@ const MedicineCategoriesPage: React.FC = () => {
 
   // Delete category mutation
   const deleteCategory = useMutation(
-    (id: number) => {
-      return fetch(`/api/medicine-categories/${id}`, {
-        method: "DELETE",
-      });
-    },
+    (id: number) => medicineAPI.deleteMedicineCategory(id),
     {
       onSuccess: () => {
         queryClient.invalidateQueries("medicineCategories");
@@ -146,69 +135,37 @@ const MedicineCategoriesPage: React.FC = () => {
         <title>Medicine Categories | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin/inventory"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Medicine Inventory
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">Categories</span>
-              </li>
-            </ol>
+      <div className="space-y-5">
+        <div>
+          <nav className="text-sm text-gray-500 mb-1">
+            <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+            <span className="mx-1">/</span>
+            <Link href="/admin" className="hover:text-gray-700">Admin</Link>
+            <span className="mx-1">/</span>
+            <Link href="/admin/inventory" className="hover:text-gray-700">Medicine Inventory</Link>
+            <span className="mx-1">/</span>
+            <span className="text-gray-800">Categories</span>
           </nav>
+          <h1 className="text-2xl font-bold text-gray-900">Medicine Categories</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Manage medicine categories for inventory organization</p>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">
-              Medicine Categories
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Manage medicine categories for inventory organization
-            </p>
-          </div>
-        </div>
-
-        {/* Error and success messages */}
         {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
-            <p>{error}</p>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">
-            <p>{success}</p>
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+            {success}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Create New Category Form */}
-          <div className="bg-white shadow rounded-lg overflow-hidden md:col-span-1">
-            <div className="p-6">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden md:col-span-1">
+            <div className="p-5">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
                 Create New Category
               </h2>
@@ -266,8 +223,8 @@ const MedicineCategoriesPage: React.FC = () => {
           </div>
 
           {/* Categories List */}
-          <div className="bg-white shadow rounded-lg overflow-hidden md:col-span-2">
-            <div className="p-6">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden md:col-span-2">
+            <div className="p-5">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
                 Existing Categories
               </h2>

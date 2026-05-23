@@ -113,41 +113,17 @@ export default function SystemSettingsPage() {
         <title>System Settings | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">System Settings</span>
-              </li>
-            </ol>
+      <div className="space-y-5">
+        <div>
+          <nav className="text-sm text-gray-500 mb-1">
+            <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+            <span className="mx-1">/</span>
+            <Link href="/admin" className="hover:text-gray-700">Admin</Link>
+            <span className="mx-1">/</span>
+            <span className="text-gray-800">System Settings</span>
           </nav>
-        </div>
-
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">
-              System Settings
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Configure system preferences and options
-            </p>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900">System Settings</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Configure system preferences and options</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

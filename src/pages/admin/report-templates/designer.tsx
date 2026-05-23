@@ -194,6 +194,7 @@ export default function TemplateDesignerPage() {
         {/* Template Designer Component */}
         <TemplateDesigner
           templateId={templateId ? Number(templateId) : undefined}
+          initialData={existingTemplate}
           onSave={handleSave}
           onPreview={handlePreview}
         />

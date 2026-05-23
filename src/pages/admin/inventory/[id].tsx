@@ -168,64 +168,34 @@ const MedicineDetailPage: React.FC = () => {
         </title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin/inventory"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Medicine Inventory
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">
-                  {isNewMedicine ? "Add Medicine" : "Edit Medicine"}
-                </span>
-              </li>
-            </ol>
+      <div className="space-y-5">
+        <div>
+          <nav className="text-sm text-gray-500 mb-1">
+            <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+            <span className="mx-1">/</span>
+            <Link href="/admin" className="hover:text-gray-700">Admin</Link>
+            <span className="mx-1">/</span>
+            <Link href="/admin/inventory" className="hover:text-gray-700">Medicine Inventory</Link>
+            <span className="mx-1">/</span>
+            <span className="text-gray-800">{isNewMedicine ? "Add Medicine" : "Edit Medicine"}</span>
           </nav>
-        </div>
-
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-2xl font-bold text-gray-900">
             {isNewMedicine ? "Add New Medicine" : "Edit Medicine"}
           </h1>
-          <p className="text-gray-600 mt-1">
-            {isNewMedicine
-              ? "Add a new medicine to the inventory"
-              : "Edit medicine information and stock levels"}
+          <p className="text-sm text-gray-500 mt-0.5">
+            {isNewMedicine ? "Add a new medicine to the inventory" : "Edit medicine information and stock levels"}
           </p>
         </div>
 
-        {/* Error and success messages */}
         {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
-            <p>{error}</p>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">
-            <p>{success}</p>
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+            {success}
           </div>
         )}
 
@@ -257,7 +227,7 @@ const MedicineDetailPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white shadow rounded-lg overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
             <form onSubmit={handleSubmit}>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -541,7 +511,7 @@ const MedicineDetailPage: React.FC = () => {
           </div>
         )}
         {!isNewMedicine && medicineData && (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="text-lg font-medium text-gray-800 mb-4">
                 Medicine Information

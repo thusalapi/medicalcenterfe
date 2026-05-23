@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useQuery } from "react-query";
-import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
 import { reportAPI, reportTypeAPI } from "../../utils/api";
@@ -8,7 +7,6 @@ import { parseDate, formatDate } from "../../utils/date";
 import { Report, ReportType } from "../../types";
 
 export default function ReportsPage() {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<number | null>(null);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
@@ -74,13 +72,13 @@ export default function ReportsPage() {
         <title>Medical Reports | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Medical Reports</h1>
+      <div className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">Medical Reports</h1>
         </div>
 
         {/* Search and Filter Tools */}
-        <div className="bg-white shadow rounded-lg p-4 mb-6">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="md:col-span-2">
               <label

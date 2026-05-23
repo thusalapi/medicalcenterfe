@@ -43,7 +43,7 @@ const ReportTemplatesPage: React.FC = () => {
   );
 
   // Confirm delete handler
-  const handleDelete = (reportTypeId: number, reportName: string) => {
+  const handleDelete = (reportTypeId: number) => {
     const template = reportTypes?.find(
       (rt) => rt.reportTypeId === reportTypeId
     );
@@ -66,177 +66,32 @@ const ReportTemplatesPage: React.FC = () => {
         <title>Report Templates | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">Report Templates</span>
-              </li>
-            </ol>
-          </nav>
-        </div>
-
-        <div className="flex justify-between items-center mb-6">
+      <div className="space-y-5">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
-              Report Templates
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Design and manage medical report templates for your healthcare
-              facility
-            </p>
+            <nav className="flex text-sm text-gray-500 mb-1">
+              <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+              <span className="mx-1.5">/</span>
+              <Link href="/admin" className="hover:text-gray-700">Admin</Link>
+              <span className="mx-1.5">/</span>
+              <span className="text-gray-900">Report Templates</span>
+            </nav>
+            <h1 className="text-2xl font-bold text-gray-900">Report Templates</h1>
           </div>
-          <div className="flex space-x-3">
-            <Link
-              href="/admin/report-templates/designer"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition shadow-md"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Design New Template
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/report-templates/designer" className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              New Template
             </Link>
-            <Link
-              href="/admin/report-templates/view"
-              className="inline-flex items-center px-4 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
-              View Templates
+            <Link href="/admin/report-templates/view" className="px-3 py-2 text-sm bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors">
+              View All
             </Link>
           </div>
         </div>
 
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-100 rounded-lg p-8 mb-8 border border-blue-200">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Professional Medical Report Template Designer
-            </h2>
-            <p className="text-gray-600 max-w-3xl mx-auto mb-6">
-              Create custom report templates for your medical center with our
-              intuitive drag-and-drop designer. Build professional layouts for
-              lab results, patient reports, medical certificates, and more with
-              seamless integration to your patient management system.
-            </p>
-            <div className="flex justify-center space-x-4">
-              <Link
-                href="/admin/report-templates/designer"
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-lg font-semibold"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Start Designing
-              </Link>
-              <Link
-                href="/admin/report-templates/library"
-                className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition shadow-lg font-semibold"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  />
-                </svg>
-                Browse Templates
-              </Link>
-              <Link
-                href="/admin/report-templates/view"
-                className="inline-flex items-center px-6 py-3 bg-white text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-                My Templates
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Feature cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
           <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
               <svg
@@ -521,12 +376,7 @@ const ReportTemplatesPage: React.FC = () => {
                       </Link>
                       <button
                         className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
-                        onClick={() =>
-                          handleDelete(
-                            reportType.reportTypeId,
-                            reportType.reportName
-                          )
-                        }
+                        onClick={() => handleDelete(reportType.reportTypeId)}
                         disabled={deleteReportType.isLoading}
                       >
                         Delete

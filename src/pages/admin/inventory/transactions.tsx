@@ -4,6 +4,7 @@ import Link from "next/link";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { medicineAPI } from "../../../utils/api";
+import { formatDate } from "../../../utils/date";
 import { InventoryTransaction, Medicine } from "../../../types";
 
 const InventoryTransactionsPage: React.FC = () => {
@@ -202,94 +203,55 @@ const InventoryTransactionsPage: React.FC = () => {
         <title>Inventory Transactions | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin/inventory"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Medicine Inventory
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">Transactions</span>
-              </li>
-            </ol>
-          </nav>
-        </div>
-
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+      <div className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
+            <nav className="text-sm text-gray-500 mb-1">
+              <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+              <span className="mx-1">/</span>
+              <Link href="/admin" className="hover:text-gray-700">Admin</Link>
+              <span className="mx-1">/</span>
+              <Link href="/admin/inventory" className="hover:text-gray-700">Medicine Inventory</Link>
+              <span className="mx-1">/</span>
+              <span className="text-gray-800">Transactions</span>
+            </nav>
+            <h1 className="text-2xl font-bold text-gray-900">
               Inventory Transactions
               {selectedMedicine && (
-                <span className="text-xl text-gray-600 ml-2">
-                  for {selectedMedicine.name}
+                <span className="text-lg text-gray-500 ml-2 font-normal">
+                  — {selectedMedicine.name}
                 </span>
               )}
             </h1>
-            <p className="text-gray-600 mt-1">
-              Track inventory movements and stock changes
-            </p>
+            <p className="text-sm text-gray-500 mt-0.5">Track inventory movements and stock changes</p>
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+            className="self-start sm:self-auto inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
           >
-            <svg
-              className="h-5 w-5 mr-2"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
+            <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Record Transaction
           </button>
         </div>
 
-        {/* Error and success messages */}
         {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
-            <p>{error}</p>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
           </div>
         )}
 
         {success && (
-          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">
-            <p>{success}</p>
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+            {success}
           </div>
         )}
 
         {/* Filters */}
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Filters</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Filters</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Medicine
@@ -352,7 +314,7 @@ const InventoryTransactionsPage: React.FC = () => {
         </div>
 
         {/* Transactions Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -431,9 +393,7 @@ const InventoryTransactionsPage: React.FC = () => {
                       className="hover:bg-gray-50"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {new Date(
-                          transaction.transactionDate
-                        ).toLocaleDateString()}
+                        {formatDate(transaction.transactionDate)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Link

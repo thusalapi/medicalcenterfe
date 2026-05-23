@@ -439,6 +439,18 @@ export const medicineAPI = {
     return response.data;
   },
 
+  // Update medicine category
+  updateMedicineCategory: async (id: number, categoryData: any) => {
+    const response = await api.put(`/medicine-categories/${id}`, categoryData);
+    return response.data;
+  },
+
+  // Delete medicine category
+  deleteMedicineCategory: async (id: number) => {
+    const response = await api.delete(`/medicine-categories/${id}`);
+    return response.data;
+  },
+
   // Record inventory transaction
   recordInventoryTransaction: async (transactionData: any) => {
     const response = await api.post("/inventory-transactions", transactionData);

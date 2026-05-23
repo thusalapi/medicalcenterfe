@@ -1,14 +1,29 @@
 /**
  * Parse a date value that may arrive as ISO string, space-separated string,
- * timestamp number, or already a Date object.
+ * timestamp number, Jackson array, or already a Date object.
  */
-export function parseDate(value: string | number | Date | null | undefined): Date | null {
-  if (!value) return null;
+export function parseDate(value: any): Date | null {
+  if (value == null || value === "") return null;
   if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
 
-  // Handle space-separated format from older backend responses: "2024-05-23 10:30:00"
-  const normalized = typeof value === "string" ? value.replace(" ", "T") : value;
-  const d = new Date(normalized);
+  // Jackson may serialize LocalDateTime as an array: [2024, 5, 23, 10, 30, 0, 123456789]
+  if (Array.isArray(value)) {
+    const [year, month, day, hour = 0, minute = 0, second = 0] = value as number[];
+    const d = new Date(year, month - 1, day, hour, minute, second);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  if (typeof value === "string") {
+    // Replace space separator with T for ISO compatibility: "2024-05-23 10:30:00"
+    let normalized = value.replace(" ", "T");
+    // Truncate sub-millisecond precision to 3 digits — JS only supports .NNN
+    // e.g. "2024-05-23T10:30:00.123456789" → "2024-05-23T10:30:00.123"
+    normalized = normalized.replace(/(\.\d{3})\d+/, "$1");
+    const d = new Date(normalized);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const d = new Date(value as number);
   return isNaN(d.getTime()) ? null : d;
 }
 

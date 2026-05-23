@@ -12,13 +12,13 @@ export default function AdminPage() {
         <title>Admin Dashboard | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-500 mt-1 text-sm">
             Manage system settings and configurations
           </p>
-        </div>{" "}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* System Management Section */}
           <div className="col-span-2">

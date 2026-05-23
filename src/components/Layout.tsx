@@ -49,7 +49,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Head>
 
       {/* Navigation Header */}
-      <nav className="gradient-medical shadow-medical-lg relative z-50">
+      <nav className="bg-medical-navy shadow-md relative z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative flex items-center justify-between h-16">
             {/* Logo and Title */}
@@ -108,7 +108,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 right-0 bg-medical-navy/95 backdrop-blur-sm shadow-lg border-t border-white/10">
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-[#111827] shadow-lg border-t border-white/10">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigationItems.map((item) => {
                 const IconComponent = item.icon;
@@ -134,12 +134,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 fade-in">
-        <div className="slide-up">{children}</div>
+      <main className="flex-1 w-full max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {children}
       </main>
 
       {/* Footer */}
-      <footer className="bg-white mt-auto py-6 border-t border-gray-200 shadow-inner">
+      <footer className="bg-white mt-auto py-4 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2">

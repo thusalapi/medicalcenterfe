@@ -48,12 +48,14 @@ interface StaticElement {
 
 interface TemplateDesignerProps {
   templateId?: number;
+  initialData?: any;
   onSave: (templateData: any) => void;
   onPreview: (templateData: any) => void;
 }
 
 const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   templateId,
+  initialData,
   onSave,
   onPreview,
 }) => {
@@ -154,24 +156,38 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
   };
 
   useEffect(() => {
-    if (templateId) {
-      // Load existing template data
-      loadTemplate(templateId);
-    } else {
-      // Show template options for new templates
+    if (initialData) {
+      setTemplateName(initialData.templateName || "");
+      setDescription(initialData.description || "");
+      setCategory(initialData.category || "BLOOD_TEST");
+
+      const layout = initialData.layoutConfig || {};
+      if (layout.pageOrientation) setPageOrientation(layout.pageOrientation);
+      if (layout.pageSize) setPageSize(layout.pageSize);
+
+      const rawStatic = initialData.staticContent?.elements || [];
+      setStaticElements(
+        rawStatic.map((el: any, i: number) => ({
+          ...el,
+          id: el.id || `static-loaded-${i}`,
+          isDynamic: false as const,
+        }))
+      );
+
+      const rawFields = initialData.dynamicFields?.fields || [];
+      setDynamicFields(
+        rawFields.map((f: any, i: number) => ({
+          ...f,
+          id: f.id || `field-loaded-${i}`,
+          isDynamic: true as const,
+        }))
+      );
+
+      setShowTemplateOptions(false);
+    } else if (!templateId) {
       setShowTemplateOptions(true);
     }
-  }, [templateId]);
-
-  const loadTemplate = async (id: number) => {
-    try {
-      // Fetch template data from API
-      // const response = await reportTemplateAPI.getTemplateById(id);
-      // setTemplateData(response.data);
-    } catch (error) {
-      console.error("Error loading template:", error);
-    }
-  };
+  }, [initialData, templateId]);
 
   const initializeDefaultTemplate = () => {
     const canvasDims = getCanvasDimensions();

@@ -210,40 +210,18 @@ export default function UserManagementPage() {
         <title>User Management | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">User Management</span>
-              </li>
-            </ol>
-          </nav>
-        </div>
-
-        <div className="flex justify-between items-center mb-6">
+      <div className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
-              User Management
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Manage users, roles, and permissions
-            </p>
+            <nav className="text-sm text-gray-500 mb-1">
+              <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+              <span className="mx-1">/</span>
+              <Link href="/admin" className="hover:text-gray-700">Admin</Link>
+              <span className="mx-1">/</span>
+              <span className="text-gray-800">User Management</span>
+            </nav>
+            <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Manage users, roles, and permissions</p>
           </div>
           <div className="space-x-3">
             <button

@@ -120,59 +120,28 @@ const InventoryPage: React.FC = () => {
         <title>Medicine Inventory | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">Medicine Inventory</span>
-              </li>
-            </ol>
-          </nav>
-        </div>
-
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+      <div className="space-y-5">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
-              Medicine Inventory
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Manage medicine stock, track inventory, and monitor usage
-            </p>
+            <nav className="flex text-sm text-gray-500 mb-1">
+              <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+              <span className="mx-1.5">/</span>
+              <Link href="/admin" className="hover:text-gray-700">Admin</Link>
+              <span className="mx-1.5">/</span>
+              <span className="text-gray-900">Inventory</span>
+            </nav>
+            <h1 className="text-2xl font-bold text-gray-900">Medicine Inventory</h1>
           </div>
-          <div className="mt-4 md:mt-0 space-y-2 md:space-y-0 md:space-x-2">
-            <Link
-              href="/admin/inventory/new"
-              className="inline-block px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-            >
-              Add New Medicine
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/inventory/new" className="px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+              Add Medicine
             </Link>
-            <Link
-              href="/admin/inventory/categories"
-              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition ml-2"
-            >
-              Manage Categories
+            <Link href="/admin/inventory/categories" className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              Categories
             </Link>
-            <Link
-              href="/admin/inventory/transactions"
-              className="inline-block px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition ml-2"
-            >
-              View Transactions
+            <Link href="/admin/inventory/transactions" className="px-3 py-2 text-sm bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors">
+              Transactions
             </Link>
           </div>
         </div>

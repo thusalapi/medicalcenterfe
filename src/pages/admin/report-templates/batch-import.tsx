@@ -71,51 +71,23 @@ const BatchImportLabTemplatesPage = () => {
         </title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Admin
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/admin/report-templates"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Report Templates
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">
-                  Batch Import Lab Templates
-                </span>
-              </li>
-            </ol>
-          </nav>
-        </div>
-
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Batch Import Lab Templates
-          </h1>
-
+      <div className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <nav className="text-sm text-gray-500 mb-1">
+              <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+              <span className="mx-1">/</span>
+              <Link href="/admin" className="hover:text-gray-700">Admin</Link>
+              <span className="mx-1">/</span>
+              <Link href="/admin/report-templates" className="hover:text-gray-700">Report Templates</Link>
+              <span className="mx-1">/</span>
+              <span className="text-gray-800">Batch Import</span>
+            </nav>
+            <h1 className="text-2xl font-bold text-gray-900">Batch Import Lab Templates</h1>
+          </div>
           <Link
             href="/admin/report-templates"
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            className="self-start sm:self-auto px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200"
           >
             Cancel
           </Link>

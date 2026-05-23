@@ -103,25 +103,17 @@ const getCategoryColor = (category: string) => {
 
   if (isTemplatesLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <h3 className="text-lg font-medium text-red-800 mb-2">
-            Error Loading Templates
-          </h3>
-          <p className="text-red-600">
-            Failed to load report templates. Please try again later.
-          </p>
-        </div>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <h3 className="text-base font-medium text-red-800 mb-1">Error Loading Templates</h3>
+        <p className="text-sm text-red-600">Failed to load report templates. Please try again later.</p>
       </div>
     );
   }
@@ -132,22 +124,18 @@ const getCategoryColor = (category: string) => {
         <title>Report Templates - Medical Center</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="space-y-5">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Report Templates
-            </h1>
-            <p className="text-gray-600">
-              Manage and organize your medical report templates
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">Report Templates</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Manage and organize your medical report templates</p>
           </div>
           <Link
             href="/admin/report-templates/designer"
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <FaPlus className="mr-2" />
+            <FaPlus className="h-3.5 w-3.5" />
             New Template
           </Link>
         </div>

@@ -63,16 +63,16 @@ const TemplateBasedReportPage: React.FC = () => {
 
   if (selectedTemplateId) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+      <div className="space-y-5">
+        <div>
           <button
             onClick={handleBackToSelection}
-            className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
+            className="flex items-center text-blue-600 hover:text-blue-800 text-sm mb-2"
           >
-            <FaTimes className="mr-2" />
+            <FaTimes className="mr-1.5 h-3.5 w-3.5" />
             Back to Template Selection
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Generate Report</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Generate Report</h1>
         </div>
 
         <ReportGenerator
@@ -86,14 +86,10 @@ const TemplateBasedReportPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Select Report Template
-        </h1>
-        <p className="text-gray-600">
-          Choose a template to generate a medical report
-        </p>
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Select Report Template</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Choose a template to generate a medical report</p>
       </div>
 
       {/* Search and Filter Controls */}
