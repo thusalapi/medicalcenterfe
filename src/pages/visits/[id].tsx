@@ -138,97 +138,47 @@ export default function VisitDetailsPage() {
         <title>Visit Details | Medical Center Management System</title>
       </Head>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="flex items-center space-x-2">
-              <li>
-                <Link href="/" className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <Link
-                  href="/visits"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  Visits
-                </Link>
-              </li>
-              <li>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-gray-900">Visit #{visitId}</span>
-              </li>
-            </ol>
-          </nav>
-        </div>
+      <div className="space-y-5">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <nav className="flex text-sm text-gray-500 mb-1" aria-label="Breadcrumb">
+              <Link href="/" className="hover:text-gray-700">Dashboard</Link>
+              <span className="mx-1.5">/</span>
+              <Link href="/visits" className="hover:text-gray-700">Visits</Link>
+              <span className="mx-1.5">/</span>
+              <span className="text-gray-900">Visit #{visitId}</span>
+            </nav>
+            <h1 className="text-2xl font-bold text-gray-800">Visit #{visitId}</h1>
+          </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Visit #{visitId}</h1>
-
-          <div className="space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               href={`/patients/${visit?.patientId}`}
-              className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               Patient Profile
             </Link>
-
             {!bill && (
               <Link
                 href={`/bills/new?visitId=${visitId}`}
-                className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Create Bill
               </Link>
             )}
-
             <Link
               href={`/reports/new?visitId=${visitId}`}
-              className="inline-flex items-center px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               New Report
             </Link>

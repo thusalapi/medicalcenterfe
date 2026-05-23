@@ -155,7 +155,9 @@ export interface Report {
   visitId: number;
   reportTypeId: number;
   reportTypeName: string;
-  reportData: any; // JSON structure with field values
+  patientName?: string;
+  visitDate?: string;
+  reportData: any;
   createdDate: string;
   lastModifiedDate: string;
 }

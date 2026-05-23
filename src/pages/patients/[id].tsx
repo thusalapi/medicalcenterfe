@@ -89,26 +89,20 @@ const PatientDetailsPage: React.FC = () => {
   // Loading state
   if (isPatientLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading patient details...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-gray-600">Loading patient details...</p>
       </div>
     );
   }
 
-  // Patient not found
   if (!patient && !isPatientLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6">
+      <div className="space-y-4">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
           <p className="text-red-800">Patient not found</p>
         </div>
-        <Link
-          href="/patients"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
+        <Link href="/patients" className="inline-block px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
           Back to Patients
         </Link>
       </div>
@@ -116,21 +110,21 @@ const PatientDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Patient Details</h1>
-        <div className="space-x-2">
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 className="text-2xl font-bold text-gray-900">Patient Details</h1>
+        <div className="flex flex-wrap gap-2">
           {!isEditing ? (
             <>
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Edit Patient
               </button>
               <button
                 onClick={handleCreateVisit}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
                 Create Visit
               </button>
@@ -138,7 +132,7 @@ const PatientDetailsPage: React.FC = () => {
           ) : (
             <button
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              className="px-4 py-2 text-sm bg-gray-500 text-white rounded-lg hover:bg-gray-600"
             >
               Cancel Editing
             </button>

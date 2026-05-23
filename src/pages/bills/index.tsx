@@ -4,6 +4,7 @@ import Link from "next/link";
 import Head from "next/head";
 import { billAPI } from "../../utils/api";
 import { Bill } from "../../types";
+import { formatDate as fmtDate } from "../../utils/date";
 import {
   FaSearch,
   FaPlus,
@@ -98,10 +99,6 @@ export default function BillsPage() {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
   const handleDownloadBill = async (billId: number) => {
     try {
       const blob = await billAPI.generateBillPdf(billId);
@@ -127,20 +124,18 @@ export default function BillsPage() {
       <div className="space-y-6">
         {/* Header Section */}
         <div className="bg-gradient-to-r from-medical-primary/10 via-medical-secondary/10 to-medical-primary/10 rounded-2xl p-6 border border-medical-primary/20">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="mb-4 lg:mb-0">
-              <h1 className="text-3xl font-bold font-medical text-gradient-medical mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold font-medical text-gradient-medical mb-2">
                 Billing Management
               </h1>
               <p className="text-medical-gray-medium">
                 Manage and view all patient bills and payments
               </p>
               {totalBills > 0 && (
-                <div className="flex items-center space-x-4 mt-2 text-sm">
-                  <div className="flex items-center space-x-2 text-medical-secondary">
-                    <FaFileInvoiceDollar className="h-4 w-4" />
-                    <span>{totalBills} total bills</span>
-                  </div>
+                <div className="flex items-center gap-3 mt-1 text-sm text-medical-secondary">
+                  <FaFileInvoiceDollar className="h-4 w-4" />
+                  <span>{totalBills} total bills</span>
                 </div>
               )}
             </div>
@@ -155,9 +150,9 @@ export default function BillsPage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="card-medical p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 md:space-x-4">
-            <div className="relative flex-1 max-w-md">
+        <div className="card-medical p-4 sm:p-6">
+          <div className="flex flex-col gap-3">
+            <div className="relative flex-1">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-medical-gray-medium h-4 w-4" />
               <input
                 type="text"
@@ -167,18 +162,17 @@ export default function BillsPage() {
                 className="input-medical pl-10 w-full"
               />
             </div>
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-3">
               <input
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="input-medical"
-                placeholder="Filter by date"
+                className="input-medical flex-1 min-w-[140px]"
               />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="input-medical"
+                className="input-medical flex-1 min-w-[120px]"
               >
                 <option value="">All Status</option>
                 <option value="paid">Paid</option>
@@ -298,7 +292,7 @@ export default function BillsPage() {
                           <div className="flex items-center">
                             <FaCalendarAlt className="h-4 w-4 text-medical-gray-medium mr-2" />
                             <div className="text-sm text-medical-gray-dark">
-                              {formatDate(bill.billDate)}
+                              {fmtDate(bill.billDate)}
                             </div>
                           </div>
                         </td>

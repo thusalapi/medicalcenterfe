@@ -22,9 +22,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Check if the current route is active
   const isActive = (path: string) => {
-    return router.pathname === path || router.pathname.startsWith(path);
+    if (path === "/") return router.pathname === "/";
+    return router.pathname === path || router.pathname.startsWith(path + "/");
   };
 
   const navigationItems = [
@@ -37,7 +37,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-medical-gray-light">
+    <div className="min-h-screen flex flex-col bg-medical-gray-light">
       <Head>
         <title>Medical Center Management System</title>
         <meta
@@ -134,7 +134,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 fade-in">
+      <main className="flex-1 w-full max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 fade-in">
         <div className="slide-up">{children}</div>
       </main>
 

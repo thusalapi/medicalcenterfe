@@ -19,75 +19,11 @@ export default function ReportsPage() {
     reportTypeAPI.getAllReportTypes
   );
 
-  // Fetch reports - In a real application, you'd have an API endpoint with search/filter parameters
-  // For now, we'll fetch all and filter on the client side
   const {
     data: reports,
     isLoading,
     error,
-  } = useQuery<Report[]>("allReports", async () => {
-    // This would be replaced with an API call like:
-    // reportAPI.searchReports({ searchTerm, reportTypeId: selectedType, startDate, endDate })
-
-    // Mock data for demonstration
-    return [
-      {
-        reportId: 1,
-        visitId: 101,
-        reportTypeId: 1,
-        reportTypeName: "Blood Test",
-        reportData: { bloodSugar: "120 mg/dL", cholesterol: "180 mg/dL" },
-        createdDate: "2023-01-15T09:30:00",
-        lastModifiedDate: "2023-01-15T09:30:00",
-      },
-      {
-        reportId: 2,
-        visitId: 102,
-        reportTypeId: 2,
-        reportTypeName: "X-Ray Report",
-        reportData: {
-          findings: "No abnormalities detected",
-          recommendations: "Follow-up in 6 months",
-        },
-        createdDate: "2023-02-03T14:15:00",
-        lastModifiedDate: "2023-02-03T16:20:00",
-      },
-      {
-        reportId: 3,
-        visitId: 103,
-        reportTypeId: 1,
-        reportTypeName: "Blood Test",
-        reportData: { bloodSugar: "140 mg/dL", cholesterol: "220 mg/dL" },
-        createdDate: "2023-02-18T11:45:00",
-        lastModifiedDate: "2023-02-18T11:45:00",
-      },
-      {
-        reportId: 4,
-        visitId: 104,
-        reportTypeId: 3,
-        reportTypeName: "General Checkup",
-        reportData: {
-          bloodPressure: "120/80 mmHg",
-          heartRate: "72 bpm",
-          weight: "68 kg",
-        },
-        createdDate: "2023-03-05T10:00:00",
-        lastModifiedDate: "2023-03-05T10:30:00",
-      },
-      {
-        reportId: 5,
-        visitId: 105,
-        reportTypeId: 2,
-        reportTypeName: "X-Ray Report",
-        reportData: {
-          findings: "Mild joint effusion",
-          recommendations: "Physical therapy recommended",
-        },
-        createdDate: "2023-03-22T16:00:00",
-        lastModifiedDate: "2023-03-23T09:15:00",
-      },
-    ];
-  });
+  } = useQuery<Report[]>("allReports", reportAPI.getAllReports, { staleTime: 30000 });
 
   // Filter reports based on search term, type, and date range
   const filteredReports =
@@ -139,13 +75,13 @@ export default function ReportsPage() {
       </Head>
 
       <div className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Medical Reports</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Medical Reports</h1>
         </div>
 
         {/* Search and Filter Tools */}
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white shadow rounded-lg p-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="md:col-span-2">
               <label
                 htmlFor="search"
@@ -312,7 +248,7 @@ export default function ReportsPage() {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Visit ID
+                      Patient
                     </th>
                     <th
                       scope="col"
@@ -341,7 +277,7 @@ export default function ReportsPage() {
                           href={`/visits/${report.visitId}`}
                           className="hover:text-blue-600 hover:underline"
                         >
-                          {report.visitId}
+                          {report.patientName || `Visit #${report.visitId}`}
                         </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
