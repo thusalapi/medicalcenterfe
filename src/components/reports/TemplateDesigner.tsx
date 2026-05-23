@@ -259,7 +259,7 @@ const TemplateDesigner: React.FC<TemplateDesignerProps> = ({
       placeholder: `Enter ${draggedField}`,
       required: false,
       position: { x: Math.max(0, x), y: Math.max(0, y) },
-      size: { width: 200, height: 30 },
+      size: { width: 200, height: 60 },
       isDynamic: true,
       dataMapping: "",
     };
@@ -979,7 +979,7 @@ ${bodyContent}
             <div className="flex justify-center">
               <div
                 ref={canvasRef}
-                className="relative bg-white border-2 border-gray-300 shadow-lg rounded-lg overflow-hidden"
+                className="relative bg-white border-2 border-gray-300 shadow-lg rounded-lg"
                 style={{
                   width: `${getCanvasDimensions().width}px`,
                   height: `${getCanvasDimensions().height}px`,
@@ -1141,7 +1141,7 @@ ${bodyContent}
                           ? "grabbing"
                           : "grab",
                       overflow: "hidden",
-                      minHeight: "30px",
+                      minHeight: "60px",
                       minWidth: "100px",
                       display: "flex",
                       flexDirection: "column",
