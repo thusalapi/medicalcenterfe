@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
 import { reportAPI, reportTypeAPI } from "../../utils/api";
+import { parseDate, formatDate } from "../../utils/date";
 import { Report, ReportType } from "../../types";
 
 export default function ReportsPage() {
@@ -104,12 +105,12 @@ export default function ReportsPage() {
         selectedType === null || report.reportTypeId === selectedType;
 
       // Filter by date range
-      const reportDate = new Date(report.createdDate);
+      const reportDate = parseDate(report.createdDate);
       const startDate = dateRange.start ? new Date(dateRange.start) : null;
       const endDate = dateRange.end ? new Date(dateRange.end) : null;
 
-      const matchesStartDate = startDate ? reportDate >= startDate : true;
-      const matchesEndDate = endDate ? reportDate <= endDate : true;
+      const matchesStartDate = startDate && reportDate ? reportDate >= startDate : true;
+      const matchesEndDate = endDate && reportDate ? reportDate <= endDate : true;
 
       return matchesSearch && matchesType && matchesStartDate && matchesEndDate;
     }) || [];
@@ -333,10 +334,7 @@ export default function ReportsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(report.createdDate).toLocaleDateString()}
-                        <span className="text-xs text-gray-400 ml-1">
-                          {new Date(report.createdDate).toLocaleTimeString()}
-                        </span>
+                        {formatDate(report.createdDate, { dateStyle: "medium", timeStyle: "short" })}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <Link

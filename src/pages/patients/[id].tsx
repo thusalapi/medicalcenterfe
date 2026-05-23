@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { useQuery, useMutation } from "react-query";
 import { patientAPI, visitAPI, reportAPI } from "../../utils/api";
+import { formatDateTime } from "../../utils/date";
 import PatientForm from "../../components/patients/PatientForm";
 import Link from "next/link";
 
@@ -232,7 +233,7 @@ const PatientDetailsPage: React.FC = () => {
                         <tr key={visit.visitId} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
-                              {new Date(visit.visitDate).toLocaleString()}
+                              {formatDateTime(visit.visitDate)}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -284,7 +285,7 @@ const PatientDetailsPage: React.FC = () => {
                         {report.reportTypeName}
                       </div>
                       <div className="text-sm text-gray-500 mb-3">
-                        Created: {new Date(report.createdDate).toLocaleString()}
+                        Created: {formatDateTime(report.createdDate)}
                       </div>
                       <div className="flex justify-end">
                         <Link

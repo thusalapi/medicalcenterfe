@@ -1,405 +1,190 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
+import Head from "next/head";
+import Link from "next/link";
 import { reportAPI } from "../../utils/api";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { formatDate, formatDateTime } from "../../utils/date";
 import {
-  FaFileAlt,
-  FaDownload,
-  FaPrint,
-  FaEdit,
-  FaArrowLeft,
-  FaCalendar,
-  FaUser,
-  FaStethoscope,
+  FaFileAlt, FaDownload, FaPrint, FaEdit, FaArrowLeft,
+  FaUser, FaClock, FaTag,
 } from "react-icons/fa";
 
 const ReportDetailPage: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
+  const reportId = id ? parseInt(id as string) : undefined;
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  const reportId = id ? parseInt(id as string) : undefined;
-
-  // Fetch report details
-  const {
-    data: report,
-    isLoading,
-    error,
-  } = useQuery(
+  const { data: report, isLoading, error } = useQuery(
     ["report", reportId],
     () => reportAPI.getReportById(reportId as number),
-    {
-      enabled: !!reportId,
-      onError: (err: any) => {
-        console.error("Failed to fetch report:", err);
-      },
-    }
+    { enabled: !!reportId }
   );
 
-  // Fetch report data with human-readable labels
-  const { data: reportDataWithLabels, isLoading: isLoadingLabels } = useQuery(
+  const { data: reportDataWithLabels } = useQuery(
     ["reportDataWithLabels", reportId],
     () => reportAPI.getReportDataWithLabels(reportId as number),
-    {
-      enabled: !!reportId,
-      onError: (err: any) => {
-        console.error("Failed to fetch report data with labels:", err);
-      },
-    }
+    { enabled: !!reportId }
   );
 
-  const handleGeneratePdf = async () => {
+  const handleDownloadPdf = async () => {
     if (!reportId) return;
-
     setIsGeneratingPdf(true);
     try {
-      const pdfBlob = await reportAPI.generateReportPdf(reportId);
-
-      // Create download link
-      const url = window.URL.createObjectURL(pdfBlob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `report-${reportId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-
-      // Cleanup
-      document.body.removeChild(link);
+      const blob = await reportAPI.generateReportPdf(reportId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `report-${reportId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Failed to generate PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
+    } catch {
+      alert("Failed to generate PDF.");
     } finally {
       setIsGeneratingPdf(false);
     }
   };
 
-  const handleGenerateFormattedPdf = async () => {
-    if (!reportId) return;
-
-    setIsGeneratingPdf(true);
-    try {
-      const pdfBlob = await reportAPI.generateReportPdfWithLabels(reportId);
-
-      // Create download link
-      const url = window.URL.createObjectURL(pdfBlob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `report-${reportId}-formatted.pdf`;
-      document.body.appendChild(link);
-      link.click();
-
-      // Cleanup
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Failed to generate formatted PDF:", error);
-      alert("Failed to generate formatted PDF. Please try again.");
-    } finally {
-      setIsGeneratingPdf(false);
-    }
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleEdit = () => {
-    router.push(`/reports/${reportId}/edit`);
-  };
-
-  const handleBackToList = () => {
-    router.push("/reports");
-  };
-
-  if (isLoading || isLoadingLabels) {
+  if (isLoading) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center min-h-64">
-            <LoadingSpinner />
-          </div>
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+      </div>
     );
   }
 
   if (error || !report) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-8">
-              <FaFileAlt className="mx-auto h-12 w-12 text-red-400 mb-4" />
-              <h2 className="text-xl font-semibold text-red-800 mb-2">
-                Report Not Found
-              </h2>
-              <p className="text-red-600 mb-4">
-                The requested report could not be found or you don't have
-                permission to view it.
-              </p>
-              <button
-                onClick={handleBackToList}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <FaArrowLeft className="mr-2" />
-                Back to Reports
-              </button>
-            </div>
-          </div>
+      <div className="space-y-4">
+        <Link href="/reports" className="flex items-center text-sm text-gray-500 hover:text-gray-700 gap-1.5">
+          <FaArrowLeft className="h-3.5 w-3.5" /> Back to Reports
+        </Link>
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-4 rounded-lg">
+          Report not found or failed to load.
         </div>
-      </Layout>
+      </div>
     );
   }
 
-  return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <button
-              onClick={handleBackToList}
-              className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
-            >
-              <FaArrowLeft className="mr-2" />
-              Back to Reports
-            </button>
-            <h1 className="text-3xl font-bold text-gray-900">Report Details</h1>
+  // report data rendering
+  const renderContent = () => {
+    const data = report.reportData;
+    if (!data) return <p className="text-gray-400 text-sm italic">No content.</p>;
+
+    if (typeof data === "string") {
+      return <div dangerouslySetInnerHTML={{ __html: data }} />;
+    }
+    if (data.content && typeof data.content === "string") {
+      return <div dangerouslySetInnerHTML={{ __html: data.content }} />;
+    }
+
+    const entries = reportDataWithLabels && Object.keys(reportDataWithLabels).length > 0
+      ? Object.entries(reportDataWithLabels)
+      : Object.entries(data);
+
+    if (entries.length === 0) return <p className="text-gray-400 text-sm italic">No data fields.</p>;
+
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {entries.map(([key, value]) => (
+          <div key={key} className="bg-gray-50 rounded-lg px-4 py-3">
+            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{key}</dt>
+            <dd className="text-sm text-gray-900">
+              {value !== null && value !== undefined && String(value).trim()
+                ? String(value)
+                : <span className="text-gray-400 italic">—</span>}
+            </dd>
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-3">
-            <button
-              onClick={handleEdit}
-              className="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
-            >
-              <FaEdit className="mr-2" />
-              Edit
-            </button>
-
-            <button
-              onClick={handlePrint}
-              className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-            >
-              <FaPrint className="mr-2" />
-              Print
-            </button>
-
-            <button
-              onClick={handleGeneratePdf}
-              disabled={isGeneratingPdf}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isGeneratingPdf ? (
-                <LoadingSpinner size="sm" className="mr-2" />
-              ) : (
-                <FaDownload className="mr-2" />
-              )}
-              {isGeneratingPdf ? "Generating..." : "Download PDF"}
-            </button>
-
-            <button
-              onClick={handleGenerateFormattedPdf}
-              disabled={isGeneratingPdf}
-              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isGeneratingPdf ? (
-                <LoadingSpinner size="sm" className="mr-2" />
-              ) : (
-                <FaDownload className="mr-2" />
-              )}
-              {isGeneratingPdf ? "Generating..." : "Formatted PDF"}
-            </button>
-          </div>
-        </div>
-
-        {/* Report Info Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-center">
-              <FaFileAlt className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Report ID</p>
-                <p className="font-semibold">{report.reportId}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <FaUser className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Patient</p>
-                <p className="font-semibold">
-                  {report.patient
-                    ? `${report.patient.firstName} ${report.patient.lastName}`
-                    : "Unknown Patient"}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <FaCalendar className="h-5 w-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">Created Date</p>
-                <p className="font-semibold">
-                  {report.createdAt
-                    ? new Date(report.createdAt).toLocaleDateString()
-                    : "N/A"}
-                </p>
-              </div>
-            </div>
-
-            {report.visit && (
-              <div className="flex items-center">
-                <FaStethoscope className="h-5 w-5 text-gray-400 mr-3" />
-                <div>
-                  <p className="text-sm text-gray-500">Visit Date</p>
-                  <p className="font-semibold">
-                    {new Date(report.visit.visitDate).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {report.reportType && (
-              <div className="flex items-center">
-                <FaFileAlt className="h-5 w-5 text-gray-400 mr-3" />
-                <div>
-                  <p className="text-sm text-gray-500">Report Type</p>
-                  <p className="font-semibold">{report.reportType.typeName}</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Report Content */}
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Report Content
-            </h2>
-          </div>
-
-          <div className="p-6">
-            {report.reportData ? (
-              <div className="prose max-w-none">
-                {typeof report.reportData === "string" ? (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: report.reportData }}
-                  />
-                ) : (
-                  <div className="space-y-4">
-                    {typeof report.reportData === "object" &&
-                    report.reportData.content ? (
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: report.reportData.content,
-                        }}
-                      />
-                    ) : (
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">
-                          Report Data:
-                        </h3>
-                        {/* Display with human-readable field names if available */}
-                        {reportDataWithLabels &&
-                        Object.keys(reportDataWithLabels).length > 0 ? (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {Object.entries(reportDataWithLabels).map(
-                              ([fieldLabel, value]) => (
-                                <div
-                                  key={fieldLabel}
-                                  className="bg-gray-50 p-4 rounded-md"
-                                >
-                                  <dt className="text-sm font-medium text-gray-500 mb-1">
-                                    {fieldLabel}
-                                  </dt>
-                                  <dd className="text-sm text-gray-900">
-                                    {value !== null &&
-                                    value !== undefined &&
-                                    value !== "" ? (
-                                      String(value)
-                                    ) : (
-                                      <span className="text-gray-400 italic">
-                                        Not specified
-                                      </span>
-                                    )}
-                                  </dd>
-                                </div>
-                              )
-                            )}
-                          </div>
-                        ) : (
-                          <pre className="bg-gray-50 p-4 rounded-md text-sm overflow-auto">
-                            {JSON.stringify(report.reportData, null, 2)}
-                          </pre>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <FaFileAlt className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                <p className="text-gray-500">No report content available</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Additional Information */}
-        {(report.notes || report.diagnosis) && (
-          <div className="bg-white rounded-lg shadow-md mt-6">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Additional Information
-              </h3>
-            </div>
-            <div className="p-6 space-y-4">
-              {report.diagnosis && (
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Diagnosis</h4>
-                  <p className="text-gray-700">{report.diagnosis}</p>
-                </div>
-              )}
-              {report.notes && (
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Notes</h4>
-                  <p className="text-gray-700">{report.notes}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        ))}
       </div>
+    );
+  };
 
-      {/* Print Styles */}
-      <style jsx global>{`
-        @media print {
-          .no-print {
-            display: none !important;
-          }
+  return (
+    <>
+      <Head><title>Report #{report.reportId} | Medical Center</title></Head>
 
-          body {
-            background: white !important;
-          }
+      <div className="space-y-5">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/reports" className="flex items-center text-sm text-gray-500 hover:text-gray-700 gap-1.5">
+              <FaArrowLeft className="h-3.5 w-3.5" /> Back
+            </Link>
+            <div className="h-4 w-px bg-gray-300" />
+            <h1 className="text-xl font-bold text-gray-900">
+              {report.reportTypeName || "Report"} #{report.reportId}
+            </h1>
+          </div>
 
-          .container {
-            max-width: none !important;
-            padding: 0 !important;
-          }
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              <FaPrint className="h-3.5 w-3.5" /> Print
+            </button>
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isGeneratingPdf}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              <FaDownload className="h-3.5 w-3.5" />
+              {isGeneratingPdf ? "Generating…" : "PDF"}
+            </button>
+            <Link
+              href={`/reports/${report.reportId}/edit`}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <FaEdit className="h-3.5 w-3.5" /> Edit
+            </Link>
+          </div>
+        </div>
 
-          .shadow-md {
-            box-shadow: none !important;
-            border: 1px solid #e5e7eb !important;
-          }
-        }
-      `}</style>
-    </Layout>
+        {/* Meta card */}
+        <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <FaUser className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-gray-400">Patient</p>
+              <p className="font-medium text-gray-900">{report.patientName || "—"}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <FaClock className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-gray-400">Visit date</p>
+              <p className="font-medium text-gray-900">{formatDateTime(report.visitDate)}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <FaTag className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-gray-400">Type</p>
+              <p className="font-medium text-gray-900">{report.reportTypeName || "—"}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <FaFileAlt className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-gray-400">Created</p>
+              <p className="font-medium text-gray-900">{formatDate(report.createdDate)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="bg-white rounded-xl border border-gray-200">
+          <div className="px-5 py-3 border-b border-gray-100">
+            <h2 className="text-sm font-semibold text-gray-700">Report Content</h2>
+          </div>
+          <div className="p-5">{renderContent()}</div>
+        </div>
+      </div>
+    </>
   );
 };
 

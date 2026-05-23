@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "react-query";
 import Link from "next/link";
 import Head from "next/head";
 import { visitAPI, reportAPI, billAPI } from "../../utils/api";
+import { formatDateTime } from "../../utils/date";
 import { Visit, Report, Bill } from "../../types";
 import POS from "../../components/bills/POS";
 
@@ -340,7 +341,7 @@ export default function VisitDetailsPage() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Date:</span>
                       <span className="font-medium text-gray-800">
-                        {new Date(visit.visitDate).toLocaleString()}
+                        {formatDateTime(visit.visitDate)}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -414,7 +415,7 @@ export default function VisitDetailsPage() {
                             {report.reportTypeName}
                           </span>
                           <span className="ml-3 text-sm text-gray-500">
-                            {new Date(report.createdDate).toLocaleString()}
+                            {formatDateTime(report.createdDate)}
                           </span>
                         </div>
                         <div className="flex space-x-2">

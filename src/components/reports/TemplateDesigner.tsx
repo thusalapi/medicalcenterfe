@@ -838,57 +838,9 @@ ${bodyContent}
               ))}
             </div>
 
-            <div className="bg-green-50 p-3 rounded-md border border-green-200">
-              <h4 className="text-xs font-semibold text-green-800 mb-2">
-                💡 How to use:
-              </h4>
-              <ul className="text-xs text-green-700 space-y-1">
-                <li>• Drag fields to canvas</li>
-                <li>• Click to select and configure</li>
-                <li>• Set data mapping in properties</li>
-                <li>• Move elements by dragging</li>
-              </ul>
-            </div>
           </div>
 
-          {/* Instructions */}
-          <div className="p-4 flex-1">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              Quick Guide
-            </h3>
-            <div className="space-y-3 text-xs text-gray-600">
-              <div className="bg-blue-50 p-2 rounded border border-blue-200">
-                <strong className="text-blue-800">📄 Static Elements:</strong>
-                <p className="mt-1">
-                  Permanent content like titles, headers, labels. Double-click
-                  to edit.
-                </p>
-              </div>
-
-              <div className="bg-green-50 p-2 rounded border border-green-200">
-                <strong className="text-green-800">📊 Dynamic Fields:</strong>
-                <p className="mt-1">
-                  Data placeholders filled during report generation. Must set
-                  data mapping!
-                </p>
-              </div>
-
-              <div className="bg-yellow-50 p-2 rounded border border-yellow-200">
-                <strong className="text-yellow-800">⚠️ Required:</strong>
-                <p className="mt-1">
-                  All dynamic fields need data mapping before saving.
-                </p>
-              </div>
-
-              <div className="bg-purple-50 p-2 rounded border border-purple-200">
-                <strong className="text-purple-800">📏 Page Layout:</strong>
-                <p className="mt-1">
-                  Choose page size and orientation to match your report needs.
-                  Canvas adjusts automatically.
-                </p>
-              </div>
-            </div>
-          </div>
+          <div className="flex-1" />
 
           {/* Actions */}
           <div className="p-4 border-t border-gray-200 space-y-2">

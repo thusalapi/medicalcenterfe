@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useMutation, useQuery } from "react-query";
 import { billAPI, visitAPI } from "../../utils/api";
+import { formatDateTime } from "../../utils/date";
 import BillEditor from "../../components/bills/BillEditor";
 import { Bill, Visit } from "../../types";
 
@@ -171,7 +172,7 @@ const NewBillPage: React.FC = () => {
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
               <p className="text-blue-800">
                 <strong>Visit Information:</strong> {visit?.patientName} -{" "}
-                {new Date(visit?.visitDate).toLocaleString()}
+                {formatDateTime(visit?.visitDate)}
               </p>
             </div>
           </div>

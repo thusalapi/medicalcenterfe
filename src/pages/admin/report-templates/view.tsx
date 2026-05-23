@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
 import { reportTemplateAPI } from "../../../utils/api";
+import { formatDateTime } from "../../../utils/date";
 import { ReportTemplate } from "../../../types";
 import {
   FaPlus,
@@ -88,17 +89,7 @@ export default function ViewTemplatesPage() {
     });
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getCategoryColor = (category: string) => {
+const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       BLOOD_TEST: "bg-red-100 text-red-800",
       URINE_TEST: "bg-yellow-100 text-yellow-800",
@@ -279,14 +270,14 @@ export default function ViewTemplatesPage() {
                     </div>
                     <div className="flex items-center text-gray-600">
                       <FaCalendarAlt className="mr-2 text-green-500" />
-                      <span>{formatDate(template.createdDate)}</span>
+                      <span>{formatDateTime(template.createdDate)}</span>
                     </div>
                   </div>
 
                   {template.lastModifiedDate &&
                     template.lastModifiedDate !== template.createdDate && (
                       <div className="mt-2 text-xs text-gray-500">
-                        Modified: {formatDate(template.lastModifiedDate)}
+                        Modified: {formatDateTime(template.lastModifiedDate)}
                       </div>
                     )}
                 </div>

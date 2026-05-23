@@ -223,6 +223,12 @@ export const reportAPI = {
     return response.data;
   },
 
+  // Get all reports
+  getAllReports: async () => {
+    const response = await api.get("/reports");
+    return response.data;
+  },
+
   // Get report by ID
   getReportById: async (reportId: number) => {
     const response = await api.get(`/reports/${reportId}`);

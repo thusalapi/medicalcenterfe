@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { useQuery } from "react-query";
 import { visitAPI, reportAPI, billAPI } from "../utils/api";
+import { formatDateShort } from "../utils/date";
 import PatientLookup from "../components/patients/PatientLookup";
 import Dashboard from "../components/dashboard/Dashboard";
 import { Patient, Visit } from "../types";
@@ -111,7 +112,7 @@ export default function Home() {
                       <p className="text-sm font-medium text-gray-800 truncate">{visit.patientName}</p>
                       <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                         <FaClock className="h-3 w-3" />
-                        {new Date(visit.visitDate).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+                        {formatDateShort(visit.visitDate)}
                       </p>
                     </div>
                   </div>

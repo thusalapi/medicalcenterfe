@@ -1,244 +1,112 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { useQuery, useMutation } from "react-query";
-import { reportAPI } from "../../../utils/api";
-import Layout from "../../../components/Layout";
-import LoadingSpinner from "../../../components/ui/LoadingSpinner";
+import Head from "next/head";
+import Link from "next/link";
+import { reportAPI, reportTypeAPI } from "../../../utils/api";
+import { formatDate } from "../../../utils/date";
 import ReportEditor from "../../../components/reports/ReportEditor";
-import { FaArrowLeft, FaTimes } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 
 const EditReportPage: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
+  const reportId = id ? parseInt(id as string) : undefined;
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const reportId = id ? parseInt(id as string) : undefined;
-
-  // Fetch report details
-  const {
-    data: report,
-    isLoading,
-    error: fetchError,
-  } = useQuery(
+  const { data: report, isLoading: isLoadingReport, error: fetchError } = useQuery(
     ["report", reportId],
     () => reportAPI.getReportById(reportId as number),
-    {
-      enabled: !!reportId,
-      onError: (err: any) => {
-        setError("Failed to fetch report details");
-        console.error("Failed to fetch report:", err);
-      },
-    }
+    { enabled: !!reportId }
   );
 
-  // Update report mutation
-  const updateReportMutation = useMutation(
-    ({ reportId, reportData }: { reportId: number; reportData: any }) =>
-      reportAPI.updateReport(reportId, reportData),
+  const { data: reportType, isLoading: isLoadingType } = useQuery(
+    ["reportType", report?.reportTypeId],
+    () => reportTypeAPI.getReportTypeById(report!.reportTypeId),
+    { enabled: !!report?.reportTypeId }
+  );
+
+  const updateMutation = useMutation(
+    (reportData: any) => reportAPI.updateReport(reportId!, reportData),
     {
       onSuccess: () => {
         setSuccess("Report updated successfully!");
-        setError(null);
-
-        // Redirect back to report view after a short delay
-        setTimeout(() => {
-          router.push(`/reports/${reportId}`);
-        }, 1500);
+        setTimeout(() => router.push(`/reports/${reportId}`), 1500);
       },
       onError: (err: any) => {
-        setError(
-          err.response?.data?.message ||
-            "Failed to update report. Please try again."
-        );
-        setSuccess(null);
+        setError(err.response?.data?.message || "Failed to update report.");
       },
     }
   );
 
-  const handleCancel = () => {
-    router.push(`/reports/${reportId}`);
-  };
-
-  const handleBackToList = () => {
-    router.push("/reports");
-  };
+  const isLoading = isLoadingReport || isLoadingType;
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center min-h-64">
-            <LoadingSpinner />
-          </div>
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
+      </div>
     );
   }
 
   if (fetchError || !report) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-8">
-              <h2 className="text-xl font-semibold text-red-800 mb-2">
-                Report Not Found
-              </h2>
-              <p className="text-red-600 mb-4">
-                The requested report could not be found or you don't have
-                permission to edit it.
-              </p>
-              <button
-                onClick={handleBackToList}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <FaArrowLeft className="mr-2" />
-                Back to Reports
-              </button>
-            </div>
-          </div>
+      <div className="space-y-4">
+        <Link href="/reports" className="flex items-center text-sm text-gray-500 hover:text-gray-700 gap-1.5">
+          <FaArrowLeft className="h-3.5 w-3.5" /> Back to Reports
+        </Link>
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-4 rounded-lg">
+          Report not found.
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
+    <>
+      <Head><title>Edit Report #{report.reportId} | Medical Center</title></Head>
+
+      <div className="space-y-5">
         {/* Header */}
-        <div className="flex justify-between items-start mb-6">
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/reports/${reportId}`}
+            className="flex items-center text-sm text-gray-500 hover:text-gray-700 gap-1.5"
+          >
+            <FaArrowLeft className="h-3.5 w-3.5" /> Back
+          </Link>
+          <div className="h-4 w-px bg-gray-300" />
           <div>
-            <button
-              onClick={() => router.push(`/reports/${reportId}`)}
-              className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
-            >
-              <FaArrowLeft className="mr-2" />
-              Back to Report
-            </button>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Report</h1>
-            <p className="text-gray-600 mt-1">
-              Report ID: {reportId} • Patient:{" "}
-              {report.patient
-                ? `${report.patient.firstName} ${report.patient.lastName}`
-                : "Unknown Patient"}
+            <h1 className="text-xl font-bold text-gray-900">Edit Report</h1>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {report.reportTypeName} · {report.patientName || `Visit #${report.visitId}`} · {formatDate(report.createdDate)}
             </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-3">
-            <button
-              onClick={handleCancel}
-              className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-            >
-              <FaTimes className="mr-2" />
-              Cancel
-            </button>
           </div>
         </div>
 
-        {/* Status Messages */}
         {error && (
-          <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            </div>
-          </div>
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{error}</div>
         )}
-
         {success && (
-          <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-green-700">{success}</p>
-              </div>
-            </div>
-          </div>
+          <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg">{success}</div>
         )}
 
-        {/* Report Editor */}
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Report Content
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Edit the report content below. Changes will be saved when you
-              click "Save Changes".
-            </p>
+        {reportType ? (
+          <ReportEditor
+            initialReport={report}
+            reportType={reportType}
+            onSave={async (data) => {
+              await updateMutation.mutateAsync(data);
+            }}
+          />
+        ) : (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm px-4 py-3 rounded-lg">
+            Could not load the report type. Editing is unavailable.
           </div>
-
-          <div className="p-6">
-            <ReportEditor
-              initialReport={report}
-              reportType={report.reportType}
-              onSave={async (data) => {
-                await updateReportMutation.mutateAsync({
-                  reportId: reportId!,
-                  reportData: { ...report, reportData: data },
-                });
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Report Information */}
-        <div className="bg-white rounded-lg shadow-md mt-6">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Report Information
-            </h3>
-          </div>
-          <div className="p-6">
-            <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <dt className="text-sm font-medium text-gray-500">
-                  Report Type
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {report.reportType?.typeName || "N/A"}
-                </dd>
-              </div>
-
-              <div>
-                <dt className="text-sm font-medium text-gray-500">
-                  Created Date
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {report.createdAt
-                    ? new Date(report.createdAt).toLocaleDateString()
-                    : "N/A"}
-                </dd>
-              </div>
-
-              <div>
-                <dt className="text-sm font-medium text-gray-500">
-                  Visit Date
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {report.visit?.visitDate
-                    ? new Date(report.visit.visitDate).toLocaleDateString()
-                    : "N/A"}
-                </dd>
-              </div>
-
-              <div>
-                <dt className="text-sm font-medium text-gray-500">
-                  Last Updated
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {report.updatedAt
-                    ? new Date(report.updatedAt).toLocaleDateString()
-                    : "N/A"}
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </div>
+        )}
       </div>
-    </Layout>
+    </>
   );
 };
 

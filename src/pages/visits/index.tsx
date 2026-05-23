@@ -4,6 +4,7 @@ import Link from "next/link";
 import Head from "next/head";
 import { visitAPI } from "../../utils/api";
 import { Visit } from "../../types";
+import { formatDateShort, formatDateTime } from "../../utils/date";
 import {
   FaSearch, FaPlus, FaUser, FaFileAlt, FaDollarSign,
   FaEye, FaChevronLeft, FaChevronRight, FaClock,
@@ -117,7 +118,7 @@ export default function VisitsPage() {
                             <p className="text-sm font-medium text-gray-900">{visit.patientName}</p>
                             <p className="text-xs text-gray-400 sm:hidden flex items-center gap-1 mt-0.5">
                               <FaClock className="h-3 w-3" />
-                              {new Date(visit.visitDate).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+                              {formatDateShort(visit.visitDate)}
                             </p>
                             <p className="text-xs text-gray-400">#{visit.visitId}</p>
                           </div>
@@ -126,7 +127,7 @@ export default function VisitsPage() {
                       <td className="px-5 py-3.5 hidden sm:table-cell">
                         <span className="text-sm text-gray-600 flex items-center gap-1.5">
                           <FaClock className="h-3.5 w-3.5 text-gray-400" />
-                          {new Date(visit.visitDate).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}
+                          {formatDateTime(visit.visitDate)}
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-right">
