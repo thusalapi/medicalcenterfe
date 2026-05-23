@@ -21,7 +21,19 @@ export const api = axios.create({
 
 // Add a response interceptor for better error handling
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Auto-unwrap Spring ResponseDTO: { status: "success", message: ..., data: ... }
+    const d = response.data;
+    if (
+      d &&
+      typeof d === "object" &&
+      typeof d.status === "string" &&
+      Object.prototype.hasOwnProperty.call(d, "data")
+    ) {
+      response.data = d.data;
+    }
+    return response;
+  },
   (error) => {
     console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);

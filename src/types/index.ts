@@ -177,8 +177,10 @@ export interface BillItem {
 export interface Bill {
   billId: number;
   visitId: number;
+  patientName?: string;
   billDate: string;
   totalAmount: number;
+  status?: string;
   items: BillItem[];
 }
 
